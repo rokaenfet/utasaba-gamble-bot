@@ -1,0 +1,2 @@
+.author == client.user:
+    #     return
