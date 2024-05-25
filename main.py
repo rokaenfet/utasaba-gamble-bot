@@ -23,18 +23,6 @@ def check_is_num(txt):
         return True
     except:
         return False
-    
-async def ask_for_num_input(ctx):
-    await ctx.send("いくら賭ける？")
-    def check(msg):
-        return msg.author == ctx.author and msg.channel == ctx.channel and check_is_num(msg.content)
-    try:
-        msg = await bot.wait_for("message", check=check, timeout=10)
-        
-    except asyncio.TimeoutError:
-        await ctx.send("返信が（判断が）遅い！")
-        return False
-    return int(msg)
 
 # CHECK MID-GAME
 midgame_rps_users = set()
@@ -83,6 +71,19 @@ async def bal(ctx):
         await ctx.reply(f"**{ctx.author.nick}**様の新しい口座が設立されました")
         gamble_data[user_name] =  0
     await update_json("gamble", gamble_data)
+
+@bot.command()
+async def ask_for_num_input(ctx):
+    await ctx.send("いくら賭ける？")
+    def check(msg):
+        return msg.author == ctx.author and msg.channel == ctx.channel and check_is_num(msg.content)
+    try:
+        msg = await bot.wait_for("message", check=check, timeout=10)
+        
+    except asyncio.TimeoutError:
+        await ctx.send("返信が（判断が）遅い！")
+        return False
+    return int(msg)
 
 @bot.command(aliases = ["rock-paper-scissors, じゃんけん"])
 async def rps(ctx):
