@@ -1,4 +1,5 @@
 from discord.ext import commands
+from discord import app_commands
 from funcs import *
 
 class OwnerCog(commands.Cog):

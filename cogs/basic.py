@@ -1,8 +1,12 @@
+import discord
+from funcs import *
 from discord.ext import commands
+from discord import app_commands
 
 class BasicCog(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
+        
     
     @commands.command(name="info")
     async def info(self, ctx):

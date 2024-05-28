@@ -1,4 +1,5 @@
 from discord.ext import commands
+from discord import app_commands
 from funcs import *
 
 class GambleCog(commands.Cog):
@@ -14,6 +15,11 @@ class GambleCog(commands.Cog):
         self.image_urls = {
             "rps":"https://i0.wp.com/www.vampiretools.com/wp-content/uploads/2018/09/psr.jpg?fit=908%2C490&ssl=1"
         }
+
+    @commands.Cog.listener()
+    async def on_ready(self):
+        print('Successfully loaded : cogs.gamble')
+        await self.bot.tree.sync(guild=discord.Object(get_guild_id()))
 
     @commands.command()
     async def bal(self, ctx):
@@ -160,14 +166,17 @@ class GambleCog(commands.Cog):
             self.midgame_rps_users.remove(player_id)
             await ctx.invoke(self.bot.get_command("bal"))
     
-    @commands.command()
+    @app_commands.command(name="reload_player_sets", description="remove players from in-game list")
     @commands.is_owner()
-    async def reload_player_sets(self,ctx):
-        await ctx.send(f"Current:\n{self.midbet_users}\n{self.midgame_rps_users}")
+    async def reload_player_sets(self, interaction:discord.Interaction):
         self.midbet_users = set()
         self.midgame_rps_users = set()
         embed = discord.Embed(title="set_reset", description=f"In-Game sets reset complete :D", color=discord.Color.brand_green())
-        await ctx.send(embed=embed)
+        await interaction.response.send_message(embed=embed)
+
+    @app_commands.command(name="avatar", description="Get user avatar")
+    async def avatar(self, interaction:discord.Interaction, member:discord.Member):
+        await interaction.response.send_message(member.display_avatar)
 
     def rps_init_embed(self):
         embed=discord.Embed(title="じゃんけん! :fist: :raised_hand: :v:", color=discord.Color.blurple())
@@ -186,4 +195,4 @@ class GambleCog(commands.Cog):
         return embed
 
 async def setup(bot):
-    await bot.add_cog(GambleCog(bot))
+    await bot.add_cog(GambleCog(bot), guilds=[discord.Object(id=get_guild_id())])

@@ -46,3 +46,6 @@ def update_bal_delta(amount, user_name):
 def get_extensions():
     # COGS
     return [n.replace(".py","") for n in os.listdir("cogs") if n[-3:] == ".py"]
+
+def get_guild_id():
+    return 1243840681944813679
