@@ -34,6 +34,15 @@ def update_bal(amount, user_name):
     gamble_data[user_name] = amount
     update_json("gamble", gamble_data)
 
+def update_bal_delta(amount, user_name):
+    """
+    amount [int]
+    user_name += str [ctx.author.name]
+    """
+    gamble_data = read_json("gamble")
+    gamble_data[user_name] += amount
+    update_json("gamble", gamble_data)
+
 def get_extensions():
     # COGS
     return [n.replace(".py","") for n in os.listdir("cogs") if n[-3:] == ".py"]
