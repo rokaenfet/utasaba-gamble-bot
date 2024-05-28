@@ -1,10 +1,16 @@
 from discord.ext import commands
 from discord import app_commands
 from funcs import *
+import os
 
 class OwnerCog(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
+
+    @commands.Cog.listener()
+    async def on_ready(self):
+        print(f'Successfully loaded : cogs.{os.path.basename(__file__).replace(".py","")}')
+        await self.bot.tree.sync(guild=discord.Object(get_guild_id()))
 
     @commands.command()
     async def admin_get_num_inp(self, ctx):

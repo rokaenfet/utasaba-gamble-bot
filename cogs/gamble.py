@@ -1,6 +1,7 @@
 from discord.ext import commands
 from discord import app_commands
 from funcs import *
+import os
 
 class GambleCog(commands.Cog):
     def __init__(self, bot):
@@ -18,7 +19,7 @@ class GambleCog(commands.Cog):
 
     @commands.Cog.listener()
     async def on_ready(self):
-        print('Successfully loaded : cogs.gamble')
+        print(f'Successfully loaded : cogs.{os.path.basename(__file__).replace(".py","")}')
         await self.bot.tree.sync(guild=discord.Object(get_guild_id()))
 
     @commands.command()

@@ -4,6 +4,7 @@ import json
 import asyncio
 import sys
 import random
+import time
 from discord.ext import commands
 from dotenv import load_dotenv
 from pretty_help import PrettyHelp
@@ -43,6 +44,7 @@ async def on_ready():
 @commands.is_owner()
 async def sync(ctx):
     print("SYNCING")
+    sync_timer = time.time()
     # sync cog to guild
     guild_id = get_guild_id()
     success_embed = discord.Embed(title=f"Synced **success** :white_check_mark:", description=f"synced with guild id {guild_id}, {bot.get_guild(guild_id)}", color=discord.Color.brand_green())
@@ -53,7 +55,8 @@ async def sync(ctx):
     except Exception as e:
         print("SYNC FAILED")
         fail_embed = discord.Embed(title=f"Sync **failed** :x:", description=f"ERROR = {e}",color=discord.Color.brand_red())
-        await ctx.reply(embed=fail_embed)        
+        await ctx.reply(embed=fail_embed)      
+    print(f"process completed in {round(number=time.time()-sync_timer, ndigits=3)}s")  
 
 # MAIN
 async def main():
