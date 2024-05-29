@@ -2,6 +2,7 @@ from discord.ext import commands
 from discord import app_commands
 from funcs import *
 import os
+import time
 
 class GambleCog(commands.Cog):
     def __init__(self, bot):
@@ -19,8 +20,10 @@ class GambleCog(commands.Cog):
 
     @commands.Cog.listener()
     async def on_ready(self):
-        print(f'Successfully loaded : cogs.{os.path.basename(__file__).replace(".py","")}')
-        await self.bot.tree.sync(guild=discord.Object(get_guild_id()))
+        t = time.time()
+        # print(f'Loading : cogs.{os.path.basename(__file__).replace(".py","")}')
+        # await self.bot.tree.sync(guild=discord.Object(get_guild_id()))
+        # print(f'Successfully loaded : cogs.{os.path.basename(__file__).replace(".py","")} in {round(time.time()-t,3)}s')
 
     @commands.command()
     async def bal(self, ctx):

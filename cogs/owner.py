@@ -2,6 +2,7 @@ from discord.ext import commands
 from discord import app_commands
 from funcs import *
 import os
+import time
 
 class OwnerCog(commands.Cog):
     def __init__(self, bot):
@@ -9,8 +10,10 @@ class OwnerCog(commands.Cog):
 
     @commands.Cog.listener()
     async def on_ready(self):
-        print(f'Successfully loaded : cogs.{os.path.basename(__file__).replace(".py","")}')
-        await self.bot.tree.sync(guild=discord.Object(get_guild_id()))
+        t = time.time()
+        # print(f'Loading : cogs.{os.path.basename(__file__).replace(".py","")}')
+        # await self.bot.tree.sync(guild=discord.Object(get_guild_id()))
+        # print(f'Successfully loaded : cogs.{os.path.basename(__file__).replace(".py","")} in {round(time.time()-t,3)}s')
 
     @commands.command()
     async def admin_get_num_inp(self, ctx):
@@ -40,24 +43,27 @@ class OwnerCog(commands.Cog):
         gamble_data = read_json("gamble")
         await ctx.reply(f"your new bal is {gamble_data[user]}")
 
-    @commands.command(name="reload")
+    @commands.command(name="reload", description="update cogs/*** extensions")
     @commands.is_owner()
     async def reload(self, ctx):
         extensions = get_extensions()
         load_success = True
         for ext in extensions:
+            print(ext)
+            t = time.time()
             try:
+                print("reloading", ext)
                 await self.bot.reload_extension(f"cogs.{ext}")
-                await ctx.reply(f'...{ext} successfully reloaded')
-            except:
+                await ctx(f'...{ext} successfully reloaded after {round(time.time()-t,3)}s')
+            except Exception as e:
                 load_success = False
-                await ctx.reply(f'...{ext} failed to load')
+                await ctx(f'...{ext} failed to load. Exception: {e}. Time taken: {round(time.time()-t,3)}s')
         if load_success:
             embed = discord.Embed(title="Reload", description=f"Load Success :D", color=discord.Color.brand_green())
-            await ctx.send(embed=embed)
+            await ctx(embed=embed)
         else:
             embed = discord.Embed(title="Reload", description=f"Load Failed :/", color=discord.Color.dark_red())
-            await ctx.send(embed=embed)
+            await ctx(embed=embed)
 
     @commands.command()
     @commands.is_owner()
@@ -65,4 +71,4 @@ class OwnerCog(commands.Cog):
         pass
 
 async def setup(bot):
-    await bot.add_cog(OwnerCog(bot))
+    await bot.add_cog(OwnerCog(bot), guilds=[discord.Object(id=get_guild_id())])
