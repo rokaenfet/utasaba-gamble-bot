@@ -19,19 +19,20 @@ class OwnerCog(commands.Cog):
     @app_commands.command()
     @commands.is_owner()
     async def admin_change_money(self, interaction:discord.Interaction, user:discord.Member = None, money:int = None):
-        gamble_data = read_json("gamble")
+        gamble_data = await read_json("gamble")
         if user is None:
-            user = interaction.user.name
+            user = interaction.user
         else:
-            user = user.name
+            user = user
+        user_name = user.name
         if money is None:
-            money = gamble_data[user]
-        prev_bal = gamble_data[user]
-        update_bal(money, user)
-        gamble_data = read_json("gamble")
+            money = gamble_data[user_name]
+        prev_bal = gamble_data[user_name]
+        await update_bal(money, user_name)
+        gamble_data = await read_json("gamble")
         embed = discord.Embed(
-            title=f":detective: ADMIN COMMAND -- Change Bal of {user}", 
-            description=f":track_previous: prev bal :arrow_forward: {prev_bal} :coin: \n:track_next: new bal :arrow_forward: {gamble_data[user]} :coin:",
+            title=f":detective: ADMIN COMMAND", 
+            description=f"Change Bal of {user.mention}\n:track_previous: prev bal :arrow_forward: {prev_bal} :coin: \n:track_next: new bal :arrow_forward: {gamble_data[user_name]} :coin:",
             color=discord.Color.og_blurple())
         await interaction.response.send_message(embed=embed)
 

@@ -25,24 +25,27 @@ class GambleCog(commands.Cog):
         # await self.bot.tree.sync(guild=discord.Object(get_guild_id()))
         # print(f'Successfully loaded : cogs.{os.path.basename(__file__).replace(".py","")} in {round(time.time()-t,3)}s')
 
-    @commands.command()
-    async def bal(self, ctx):
-        gamble_data = read_json("gamble")
+    @app_commands.command(name="bal", description="show current balance of user")
+    async def bal(self, interaction:discord.Interaction, user:discord.Member = None):
         """
         !bal
         get your bal / make new bank account if non-existing
         """
-        user_name = ctx.author.name
-        
+        gamble_data = await read_json("gamble")
+        if user is None:
+            user = interaction.user
+        else:
+            user = user 
+        user_name = user.name
         if user_name not in gamble_data:
-            await ctx.reply(f"**{ctx.author.nick}**様の新しい口座が設立されました")
-            gamble_data[user_name] =  0
-        embed = discord.Embed(title=":euro: 残高 :dollar:", description=f"{gamble_data[user_name]:,} :coin:", color=discord.Color.magenta())
-        await ctx.reply(embed=embed)
+            gamble_data[user] =  0
+        update_json("gamble", gamble_data)
+        embed = discord.Embed(title=f":euro: 残高 :dollar:", description=f"{user.mention}の残高\n{gamble_data[user_name]:} :coin:", color=discord.Color.magenta())
+        await interaction.response.send_message(embed=embed)
 
     @commands.command(hidden=True)
     async def ask_for_num_input(self, ctx):
-        gamble_data = read_json("gamble")
+        gamble_data = await read_json("gamble")
         # register and check user is midbet
         player_id = ctx.message.author.id
         if player_id not in self.midbet_users:
@@ -67,7 +70,7 @@ class GambleCog(commands.Cog):
                     return
                 await ctx.reply(f"{gamble_data[user]},全財産オールインだ！")
                 self.midbet_users.remove(player_id)
-                update_bal(0, user)
+                await update_bal(0, user)
                 return gamble_data[user]
             # check inp is an int
             if check_is_num(msg):
@@ -84,7 +87,7 @@ class GambleCog(commands.Cog):
                 # if all condition passed, return num
                 else:
                     await ctx.reply(f"{num} ベットぉ！")
-                    update_bal(gamble_data[user]-num, user)
+                    await update_bal(gamble_data[user]-num, user)
                     return num
             # catch non-int (float inc)
             else:
@@ -114,7 +117,7 @@ class GambleCog(commands.Cog):
         else:
             await ctx.reply("もうじゃんけんしてるよ！早く手を出して！")
             if self.VERBOSE: print(f"{user} is already in a rps game")
-            update_bal_delta(bet_amount, user)
+            await update_bal_delta(bet_amount, user)
             return
         if self.VERBOSE: print(f"{user} passed mid-game check")
         # load rps
@@ -132,7 +135,7 @@ class GambleCog(commands.Cog):
             return msg.content in rps_dict and msg.author == ctx.author and msg.channel == ctx.channel
         rps_first_round = True
         winner = None
-        gamble_data = read_json("gamble")
+        gamble_data = await read_json("gamble")
         # get embeds
         rps_init_embed = self.rps_init_embed()
         rps_alt_embed = self.rps_alt_embed()
@@ -157,12 +160,12 @@ class GambleCog(commands.Cog):
             except asyncio.TimeoutError:
                 self.midgame_rps_users.remove(player_id)
                 await ctx.send("遅い！最初から！")
-                update_bal_delta(bet_amount, user)
+                await update_bal_delta(bet_amount, user)
                 return
         if winner is not None:
             if winner == "player":
                 await ctx.send("ま、負けた、、、")
-                update_bal(gamble_data[user]+bet_amount*self.GAMBLE_RATES["rps"], user)
+                await update_bal(gamble_data[user]+bet_amount*self.GAMBLE_RATES["rps"], user)
             else:
                 await ctx.send("勝った！gg~")
             # update and display bal
