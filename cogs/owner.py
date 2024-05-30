@@ -16,20 +16,6 @@ class OwnerCog(commands.Cog):
         # await self.bot.tree.sync(guild=discord.Object(get_guild_id()))
         # print(f'Successfully loaded : cogs.{os.path.basename(__file__).replace(".py","")} in {round(time.time()-t,3)}s')
 
-    # async def admin_get_num_inp(self, interaction):
-    #     await ctx.reply("how much to change？")
-    #     def check(msg):
-    #         return msg.author == ctx.author and msg.channel == ctx.channel
-    #     try:
-    #         res = await self.bot.wait_for("message", check=check, timeout=5)
-    #         msg = res.content
-    #         if check_is_num(msg):
-    #             return int(msg)
-    #         else:
-    #             return False
-    #     except asyncio.TimeoutError:
-    #         return False
-
     @app_commands.command()
     @commands.is_owner()
     async def admin_change_money(self, interaction:discord.Interaction, user:discord.Member = None, money:int = None):
