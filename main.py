@@ -5,6 +5,7 @@ import asyncio
 import sys
 import random
 import time
+import logging
 from discord.ext import commands
 from dotenv import load_dotenv
 from pretty_help import PrettyHelp
@@ -14,6 +15,10 @@ from funcs import *
 async def load_extensions():
     for ext in get_extensions():
         await bot.load_extension(f"cogs.{ext}")
+        print(f"Loaded extension cogs.{ext}")
+
+# LOGGING
+handler = logging.FileHandler(filename='discord.log', encoding='utf-8', mode='w')
 
 # CHECK MID-GAME
 midgame_rps_users = set()
@@ -36,6 +41,8 @@ bot = commands.Bot(command_prefix = ["!","/","?","fish "], intents=intents, case
 # EVENTS
 @bot.event
 async def on_ready():
+    # load extensions
+    await load_extensions()
     # confirm login
     print(f'\n\nLogged in as: {bot.user.name} - {bot.user.id}\nVersion: {discord.__version__}\n')
 
@@ -59,9 +66,13 @@ async def sync(ctx):
     print(f"process completed in {round(number=time.time()-sync_timer, ndigits=3)}s")  
 
 # MAIN
-async def main():
-    await load_extensions()
-    async with bot:
-        await bot.start(DISCORD_TOKEN)
+def main():
+    bot.run(token=DISCORD_TOKEN, log_handler=handler)
+    # async with bot:
+    #     await bot.start(DISCORD_TOKEN, log_handler=handler)
 
-asyncio.run(main())
+# bot.start MAIN
+# async def main():
+#     async with bot:
+#         await bot.start(DISCORD_TOKEN, log_handler=handler)
+# asyncio.run(main)
