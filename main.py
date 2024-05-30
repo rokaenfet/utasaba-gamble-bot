@@ -1,9 +1,6 @@
 import os
 import discord
-import json
 import asyncio
-import sys
-import random
 import time
 import logging
 from discord.ext import commands
