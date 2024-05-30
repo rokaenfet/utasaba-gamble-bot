@@ -3,6 +3,8 @@ from discord import app_commands
 from funcs import *
 import os
 import time
+import asyncio
+import random
 
 class GambleCog(commands.Cog):
     def __init__(self, bot):
