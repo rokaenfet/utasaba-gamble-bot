@@ -1,6 +1,7 @@
 import discord
 import os
 import time
+import typing
 from funcs import *
 from discord.ext import commands
 from discord import app_commands
@@ -30,6 +31,9 @@ class BasicCog(commands.Cog):
             print(f"Error: {e}")
 
     @app_commands.command(name="avatar", description="Get user avatar")
+    @app_commands.describe(
+        member="@[ユーザー名]"
+    )
     async def avatar(self, interaction:discord.Interaction, member:discord.Member):
         await interaction.response.send_message(member.display_avatar)
 

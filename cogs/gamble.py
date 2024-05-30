@@ -1,6 +1,7 @@
 from discord.ext import commands
 from discord import app_commands
 from funcs import *
+import typing
 import os
 import time
 import asyncio
@@ -102,26 +103,46 @@ class GambleCog(commands.Cog):
             self.midbet_users.remove(player_id)
             return False
 
-    @commands.command(aliases = ["rock-paper-scissors, じゃんけん"])
-    async def rps(self, ctx):
-        # user in question
-        user = ctx.author.name
-        # ask how much they want to bet
-        bet_amount = await ctx.invoke(self.bot.get_command("ask_for_num_input"))
-        if not bet_amount:
-            return
-        # register and check user is mid-game
-        player_id = ctx.message.author.id
-        if self.VERBOSE: print(f"checking if {user} in {self.midgame_rps_users}")
-        if player_id not in self.midgame_rps_users:
-            self.midgame_rps_users.add(player_id)
-            if self.VERBOSE: print(f"{user} registered in {self.midgame_rps_users}")
+    @app_commands.command(name="rps", description="ギャンブルジャンケン")
+    @app_commands.describe(
+        bet_amount="賭け金・'all'でオールイン、または数字入力でその額をベット",
+        opponent="相手となる@[ユーザー名]。入力なしでボット相手に変更"
+    )
+    async def rps(self, interaction:discord.Interaction, bet_amount:typing.Union[str,int], opponent:discord.Member = None):
+        # check bet_amount is valid
+        if isinstance(bet_amount, str) and bet_amount.lower() == "all":
+            await interaction.response.send_message("全額ベットォォ！ :money_with_wings:")
+        elif isinstance(bet_amount, int):
+            # check bet_amount
+            gamble_data = await read_json("gamble")
+            if bet_amount > gamble_data[user_name]:
+                interaction.response.send_message("そんなお金ないよ?\n/`bal`で自分の残高を確認してみて:question:")
+                return
+            await interaction.response.send_message(f"あなたは{bet_amount}:coin:賭けました!")
         else:
-            await ctx.reply("もうじゃんけんしてるよ！早く手を出して！")
-            if self.VERBOSE: print(f"{user} is already in a rps game")
-            await update_bal_delta(bet_amount, user)
+            await interaction.response.send_message(":x: 不適切な入力。整数か`all`と入力してください:pray:")
             return
-        if self.VERBOSE: print(f"{user} passed mid-game check")
+        
+        print(bet_amount, opponent)
+        
+        # user in question
+        user = interaction.user
+        user_name = user.name
+        
+        # opponent in question
+        if opponent is None:
+            opponent = self.bot.user
+            opponent_is_bot = True
+        else:
+            opponent_is_bot = False
+        opponent_name = opponent.name
+        print(f"user:{user}, {user_name}\nopponent:{opponent},{opponent_name}")
+
+        # TEMP!!! OPPONENT ALWAYS BOT
+        opponent_is_bot = True
+        opponent_name = self.bot.user
+        opponent_name = opponent.name
+
         # load rps
         rps_dict = {
             "ぐー":0,
@@ -134,7 +155,8 @@ class GambleCog(commands.Cog):
             2:":raised_hand:"
         }
         def check(msg):
-            return msg.content in rps_dict and msg.author == ctx.author and msg.channel == ctx.channel
+            return msg.content in rps_dict and msg.author == user and msg.channel == interaction.channel
+        
         rps_first_round = True
         winner = None
         gamble_data = await read_json("gamble")
@@ -144,15 +166,15 @@ class GambleCog(commands.Cog):
 
         while winner is None:
             if rps_first_round:
-                await ctx.reply(embed = rps_init_embed)
+                await interaction.followup.send(embed = rps_init_embed)
             else:
-                await ctx.reply(embed = rps_alt_embed)
+                await interaction.followup.send(embed = rps_alt_embed)
             try:
                 res = await self.bot.wait_for("message", check=check, timeout=10.0)
                 player_hand = res.content
                 rps_first_round = False
                 bot_hand = random.choice(["ぐー","ちょき","ぱー"])
-                await ctx.send(f"{rps_num_hand_to_emoji_dict[rps_dict[bot_hand]]} {bot_hand}!")
+                await interaction.followup.send(embed = discord.Embed(title=f"ポン！僕の手は {bot_hand}:grey_exclamation:"))
                 player_hand_num, bot_hand_num = rps_dict[player_hand], rps_dict[bot_hand]
                 # check game end
                 if (player_hand_num+1)%3 == bot_hand_num:
@@ -160,19 +182,23 @@ class GambleCog(commands.Cog):
                 elif (bot_hand_num+1)%3 == player_hand_num:
                     winner = "bot"
             except asyncio.TimeoutError:
-                self.midgame_rps_users.remove(player_id)
-                await ctx.send("遅い！最初から！")
-                await update_bal_delta(bet_amount, user)
+                # self.midgame_rps_users.remove(player_id)
+                await interaction.followup.send("もっと早く手をだして！最初から :person_shrugging:")
+                update_bal_delta(bet_amount, user_name)
                 return
         if winner is not None:
             if winner == "player":
-                await ctx.send("ま、負けた、、、")
-                await update_bal(gamble_data[user]+bet_amount*self.GAMBLE_RATES["rps"], user)
+                win_amount = bet_amount*self.GAMBLE_RATES["rps"]
+                update_bal_delta(win_amount, user_name)
+                gamble_data = await read_json()
+                await interaction.followup.send(embed = discord.Embed(
+                    title = "YOU WIN!! :crown:", 
+                    description=f"{user.mention}は{win_amount}:coin:勝ちました！\n現在の残高は{gamble_data[user_name]}:coin:です"))
             else:
-                await ctx.send("勝った！gg~")
-            # update and display bal
-            self.midgame_rps_users.remove(player_id)
-            await ctx.invoke(self.bot.get_command("bal"))
+                lose_amount = bet_amount
+                await interaction.followup.send(embed = discord.Embed(
+                    title = "YOU LOSE :regional_indicator_l: :sob:", 
+                    description=f"{user.mention}は{lose_amount}:coin:負けたよ、、、\n現在の残高は{gamble_data[user_name]}:coin:です"))
     
     @app_commands.command(name="reload_player_sets", description="remove players from in-game list")
     @commands.is_owner()

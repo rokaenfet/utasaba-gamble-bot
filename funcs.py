@@ -47,7 +47,7 @@ async def update_bal_delta(amount, user):
     user_name += str [ctx.author.name]
     """
     gamble_data = await read_json("gamble")
-    gamble_data = check_user_in_gamble_data(gamble_data, user)
+    gamble_data = await check_user_in_gamble_data(gamble_data, user)
     gamble_data[user] += amount
     update_json("gamble", gamble_data)
 

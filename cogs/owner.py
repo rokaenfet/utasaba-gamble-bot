@@ -16,7 +16,11 @@ class OwnerCog(commands.Cog):
         # await self.bot.tree.sync(guild=discord.Object(get_guild_id()))
         # print(f'Successfully loaded : cogs.{os.path.basename(__file__).replace(".py","")} in {round(time.time()-t,3)}s')
 
-    @app_commands.command()
+    @app_commands.command(name="admin_change_money", description="ADMIN: change bal of user")
+    @app_commands.describe(
+        user="残高を変更する対象の@[ユーザー名]",
+        money="変更後の残高となる金額"
+    )
     @commands.is_owner()
     async def admin_change_money(self, interaction:discord.Interaction, user:discord.Member = None, money:int = None):
         gamble_data = await read_json("gamble")
