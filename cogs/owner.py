@@ -3,6 +3,7 @@ from discord import app_commands
 from funcs import *
 import os
 import time
+import datetime
 
 class OwnerCog(commands.Cog):
     def __init__(self, bot):
@@ -48,20 +49,32 @@ class OwnerCog(commands.Cog):
     async def reload(self, ctx):
         extensions = get_extensions()
         load_success = True
+        #timestamp=datetime.now(datetime.timezone.utc
+        embed_dict = {}
+        await ctx.reply(embed=discord.Embed(title="Reloading Extensions...", color=discord.Color.dark_grey()))
         for ext in extensions:
             t = time.time()
             try:
                 await self.bot.reload_extension(f"cogs.{ext}")
-                await ctx.reply(f'...{ext} successfully reloaded after {round(time.time()-t,3)}s')
+                # await ctx.reply(f'...{ext} successfully reloaded after {round(time.time()-t,3)}s')
+                embed_dict[f"cogs.{ext}"] = [True, round(time.time()-t,3)]
+                # embed.add_field(name=f":white_check_mark: cogs.{ext}", value=f"LOADED: {round(time.time()-t,3)}s", inline=False)
             except Exception as e:
                 load_success = False
-                await ctx.reply(f'...{ext} failed to load. Exception: {e}. Time taken: {round(time.time()-t,3)}s')
-        if load_success:
-            embed = discord.Embed(title="Reload", description=f"Load Success :D", color=discord.Color.brand_green())
-            await ctx.reply(embed=embed)
-        else:
-            embed = discord.Embed(title="Reload", description=f"Load Failed :/", color=discord.Color.dark_red())
-            await ctx.reply(embed=embed)
+                # embed.add_field(name=f":sob: cogs.{ext}", value=f"LOAD FAILED: {round(time.time()-t,3)}s", inline=False)
+                embed_dict[f"cogs.{ext}"] = [False, round(time.time()-t,3)]
+                # await ctx.reply(f'...{ext} failed to load. Exception: {e}. Time taken: {round(time.time()-t,3)}s')
+
+        # response embed
+        embed = discord.Embed(
+            title="Extensions Reloaded Success :D" if load_success else "Extensions Reload Failed :/", 
+            color=discord.Color.brand_green() if load_success else discord.Color.dark_red()
+            )
+        for ext_name,(els, load_duration) in embed_dict.items():
+            embed.add_field(
+                name=f'{":white_check_mark:" if els else ":sob:"} cogs.{ext_name}', 
+                value=f'LOAD {"SUCCESS" if els else "FAILED"}: {load_duration}s', inline=False)
+        await ctx.reply(embed=embed)
 
     @commands.command()
     @commands.is_owner()
