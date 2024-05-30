@@ -70,6 +70,7 @@ def main():
     bot.run(token=DISCORD_TOKEN, log_handler=handler)
     # async with bot:
     #     await bot.start(DISCORD_TOKEN, log_handler=handler)
+main()
 
 # bot.start MAIN
 # async def main():

@@ -49,21 +49,19 @@ class OwnerCog(commands.Cog):
         extensions = get_extensions()
         load_success = True
         for ext in extensions:
-            print(ext)
             t = time.time()
             try:
-                print("reloading", ext)
                 await self.bot.reload_extension(f"cogs.{ext}")
-                await ctx(f'...{ext} successfully reloaded after {round(time.time()-t,3)}s')
+                await ctx.reply(f'...{ext} successfully reloaded after {round(time.time()-t,3)}s')
             except Exception as e:
                 load_success = False
-                await ctx(f'...{ext} failed to load. Exception: {e}. Time taken: {round(time.time()-t,3)}s')
+                await ctx.reply(f'...{ext} failed to load. Exception: {e}. Time taken: {round(time.time()-t,3)}s')
         if load_success:
             embed = discord.Embed(title="Reload", description=f"Load Success :D", color=discord.Color.brand_green())
-            await ctx(embed=embed)
+            await ctx.reply(embed=embed)
         else:
             embed = discord.Embed(title="Reload", description=f"Load Failed :/", color=discord.Color.dark_red())
-            await ctx(embed=embed)
+            await ctx.reply(embed=embed)
 
     @commands.command()
     @commands.is_owner()

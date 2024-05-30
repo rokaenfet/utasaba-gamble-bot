@@ -39,7 +39,6 @@ class GambleCog(commands.Cog):
             gamble_data[user_name] =  0
         embed = discord.Embed(title=":euro: 残高 :dollar:", description=f"{gamble_data[user_name]:,} :coin:", color=discord.Color.magenta())
         await ctx.reply(embed=embed)
-        await update_json("gamble")
 
     @commands.command(hidden=True)
     async def ask_for_num_input(self, ctx):
