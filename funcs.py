@@ -25,22 +25,30 @@ def check_is_num(txt):
     except:
         return False
     
-def update_bal(amount, user_name):
+def check_user_in_gamble_data(gamble_data, user):
+    # if user_name not registed in json
+    if user not in gamble_data:
+        gamble_data[user] = 0
+    return gamble_data
+    
+def update_bal(amount, user):
     """
     amount [int]
     user_name = str [ctx.author.name]
     """
     gamble_data = read_json("gamble")
-    gamble_data[user_name] = amount
+    gamble_data = check_user_in_gamble_data(gamble_data, user)
+    gamble_data[user] = amount
     update_json("gamble", gamble_data)
 
-def update_bal_delta(amount, user_name):
+def update_bal_delta(amount, user):
     """
     amount [int]
     user_name += str [ctx.author.name]
     """
     gamble_data = read_json("gamble")
-    gamble_data[user_name] += amount
+    gamble_data = check_user_in_gamble_data(gamble_data, user)
+    gamble_data[user] += amount
     update_json("gamble", gamble_data)
 
 def get_extensions():

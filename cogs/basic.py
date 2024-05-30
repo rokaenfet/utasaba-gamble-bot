@@ -29,5 +29,9 @@ class BasicCog(commands.Cog):
         except Exception as e:
             print(f"Error: {e}")
 
+    @app_commands.command(name="avatar", description="Get user avatar")
+    async def avatar(self, interaction:discord.Interaction, member:discord.Member):
+        await interaction.response.send_message(member.display_avatar)
+
 async def setup(bot):
     await bot.add_cog(BasicCog(bot), guilds=[discord.Object(id=get_guild_id())])

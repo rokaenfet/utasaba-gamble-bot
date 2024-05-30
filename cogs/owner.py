@@ -16,33 +16,38 @@ class OwnerCog(commands.Cog):
         # await self.bot.tree.sync(guild=discord.Object(get_guild_id()))
         # print(f'Successfully loaded : cogs.{os.path.basename(__file__).replace(".py","")} in {round(time.time()-t,3)}s')
 
-    @commands.command()
-    async def admin_get_num_inp(self, ctx):
-        await ctx.reply("how much to change？")
-        def check(msg):
-            return msg.author == ctx.author and msg.channel == ctx.channel
-        try:
-            res = await self.bot.wait_for("message", check=check, timeout=5)
-            msg = res.content
-            if check_is_num(msg):
-                return int(msg)
-            else:
-                return False
-        except asyncio.TimeoutError:
-            return False
+    # async def admin_get_num_inp(self, interaction):
+    #     await ctx.reply("how much to change？")
+    #     def check(msg):
+    #         return msg.author == ctx.author and msg.channel == ctx.channel
+    #     try:
+    #         res = await self.bot.wait_for("message", check=check, timeout=5)
+    #         msg = res.content
+    #         if check_is_num(msg):
+    #             return int(msg)
+    #         else:
+    #             return False
+    #     except asyncio.TimeoutError:
+    #         return False
 
-    @commands.command()
+    @app_commands.command()
     @commands.is_owner()
-    async def admin_change_money(self, ctx):
+    async def admin_change_money(self, interaction:discord.Interaction, user:discord.Member = None, money:int = None):
         gamble_data = read_json("gamble")
-        user = ctx.author.name
-        num = await ctx.invoke(self.bot.get_command("admin_get_num_inp"))
-        if not num:
-            return
-        await ctx.reply(f"changing your bal from {gamble_data[user]} > {num}")
-        update_bal(num, user)
+        if user is None:
+            user = interaction.user.name
+        else:
+            user = user.name
+        if money is None:
+            money = gamble_data[user]
+        prev_bal = gamble_data[user]
+        update_bal(money, user)
         gamble_data = read_json("gamble")
-        await ctx.reply(f"your new bal is {gamble_data[user]}")
+        embed = discord.Embed(
+            title=f":detective: ADMIN COMMAND -- Change Bal of {user}", 
+            description=f":track_previous: prev bal :arrow_forward: {prev_bal} :coin: \n:track_next: new bal :arrow_forward: {gamble_data[user]} :coin:",
+            color=discord.Color.og_blurple())
+        await interaction.response.send_message(embed=embed)
 
     @app_commands.command(name="reload", description="update cogs/*** extensions")
     @commands.is_owner()
@@ -72,7 +77,7 @@ class OwnerCog(commands.Cog):
             )
         for ext_name,(els, load_duration) in embed_dict.items():
             embed.add_field(
-                name=f'{":white_check_mark:" if els else ":sob:"} cogs.{ext_name}', 
+                name=f'{":white_check_mark:" if els else ":sob:"} {ext_name}', 
                 value=f'LOAD {"SUCCESS" if els else "FAILED"}: {load_duration}s', inline=False)
         await interaction.followup.send(embed=embed)
 

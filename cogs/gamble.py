@@ -177,10 +177,6 @@ class GambleCog(commands.Cog):
         embed = discord.Embed(title="set_reset", description=f"In-Game sets reset complete :D", color=discord.Color.brand_green())
         await interaction.response.send_message(embed=embed)
 
-    @app_commands.command(name="avatar", description="Get user avatar")
-    async def avatar(self, interaction:discord.Interaction, member:discord.Member):
-        await interaction.response.send_message(member.display_avatar)
-
     def rps_init_embed(self):
         embed=discord.Embed(title="じゃんけん! :fist: :raised_hand: :v:", color=discord.Color.blurple())
         embed.add_field(name=":fist:　ぐー", value="", inline=False)
