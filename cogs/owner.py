@@ -44,14 +44,14 @@ class OwnerCog(commands.Cog):
         gamble_data = read_json("gamble")
         await ctx.reply(f"your new bal is {gamble_data[user]}")
 
-    @commands.command(name="reload", description="update cogs/*** extensions")
+    @app_commands.command(name="reload", description="update cogs/*** extensions")
     @commands.is_owner()
-    async def reload(self, ctx):
+    async def reload(self, interaction:discord.Interaction):
         extensions = get_extensions()
         load_success = True
         #timestamp=datetime.now(datetime.timezone.utc
         embed_dict = {}
-        await ctx.reply(embed=discord.Embed(title="Reloading Extensions...", color=discord.Color.dark_grey()))
+        await interaction.response.send_message(embed=discord.Embed(title="Reloading Extensions...", color=discord.Color.dark_grey()))
         for ext in extensions:
             t = time.time()
             try:
@@ -74,7 +74,7 @@ class OwnerCog(commands.Cog):
             embed.add_field(
                 name=f'{":white_check_mark:" if els else ":sob:"} cogs.{ext_name}', 
                 value=f'LOAD {"SUCCESS" if els else "FAILED"}: {load_duration}s', inline=False)
-        await ctx.reply(embed=embed)
+        await interaction.followup.send(embed=embed)
 
     @commands.command()
     @commands.is_owner()
