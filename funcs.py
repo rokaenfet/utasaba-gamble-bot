@@ -7,11 +7,7 @@ from discord.ext import commands
 from dotenv import load_dotenv
 from pretty_help import PrettyHelp
 
-async def read_json(json_name):
-    f = open(f"json/{json_name}.json")
-    data = json.load(f)
-    f.close()
-    return data
+# FUNC
 
 def update_json(json_name, dict):
     f = open(f"json/{json_name}.json",mode="w")
@@ -24,6 +20,21 @@ def check_is_num(txt):
         return True
     except:
         return False
+
+def get_extensions():
+    # COGS
+    return [n.replace(".py","") for n in os.listdir("cogs") if n[-3:] == ".py"]
+
+def get_guild_id():
+    return 1243840681944813679
+
+# ASYNCH
+
+async def read_json(json_name):
+    f = open(f"json/{json_name}.json")
+    data = json.load(f)
+    f.close()
+    return data
     
 async def check_user_in_gamble_data(gamble_data, user):
     # if user_name not registed in json
@@ -50,10 +61,3 @@ async def update_bal_delta(amount, user):
     gamble_data = await check_user_in_gamble_data(gamble_data, user)
     gamble_data[user] += amount
     update_json("gamble", gamble_data)
-
-def get_extensions():
-    # COGS
-    return [n.replace(".py","") for n in os.listdir("cogs") if n[-3:] == ".py"]
-
-def get_guild_id():
-    return 1243840681944813679
