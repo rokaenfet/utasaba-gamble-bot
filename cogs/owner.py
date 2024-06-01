@@ -36,7 +36,7 @@ class OwnerCog(commands.Cog):
         gamble_data = await read_json("gamble")
         embed = discord.Embed(
             title=f":detective: ADMIN COMMAND", 
-            description=f"Change Bal of {user.mention}\n:track_previous: prev bal :arrow_forward: {prev_bal} :coin: \n:track_next: new bal :arrow_forward: {gamble_data[user_name]} :coin:",
+            description=f"Change Bal of {user.mention}\n:track_previous: prev bal :arrow_forward: {clean_money_display(prev_bal)} \n:track_next: new bal :arrow_forward: {clean_money_display(gamble_data[user_name])}",
             color=discord.Color.og_blurple())
         await interaction.response.send_message(embed=embed)
 
@@ -52,14 +52,10 @@ class OwnerCog(commands.Cog):
             t = time.time()
             try:
                 await self.bot.reload_extension(f"cogs.{ext}")
-                # await ctx.reply(f'...{ext} successfully reloaded after {round(time.time()-t,3)}s')
                 embed_dict[f"cogs.{ext}"] = [True, round(time.time()-t,3)]
-                # embed.add_field(name=f":white_check_mark: cogs.{ext}", value=f"LOADED: {round(time.time()-t,3)}s", inline=False)
             except Exception as e:
                 load_success = False
-                # embed.add_field(name=f":sob: cogs.{ext}", value=f"LOAD FAILED: {round(time.time()-t,3)}s", inline=False)
                 embed_dict[f"cogs.{ext}"] = [False, round(time.time()-t,3)]
-                # await ctx.reply(f'...{ext} failed to load. Exception: {e}. Time taken: {round(time.time()-t,3)}s')
 
         # response embed
         embed = discord.Embed(

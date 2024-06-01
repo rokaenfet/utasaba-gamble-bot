@@ -28,6 +28,9 @@ def get_extensions():
 def get_guild_id():
     return 1243840681944813679
 
+def clean_money_display(money):
+    return f"{format(money,',')}:coin:"
+
 # ASYNCH
 
 async def read_json(json_name):
