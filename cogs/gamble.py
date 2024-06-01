@@ -72,51 +72,18 @@ class GambleCog(commands.Cog):
         # get data
         gamble_data = await check_user_in_gamble_data(gamble_data, user_name)
 
-        # if bet_amount : str
-        if isinstance(bet_amount, str):
-            # is bet_amount == all in
-            if bet_amount.lower() in {"all","オール"}:
-                bet_amount = gamble_data[user_name]
-                await interaction.response.send_message(embed=discord.Embed(
-                    title=":money_with_wings:ALL-IN:exclamation:",
-                    description=f"{user.mention}はじゃんけんに**全額ベット**しました:bangbang: 賭け金={clean_money_display(bet_amount)}",
-                    color=discord.Color.light_embed()
-                ))
-                await update_bal(0, user_name)
-            # if not all in
-            else:
-                try:
-                    # bet_amount : str > int (check can it be turned to int)
-                    bet_amount = int(bet_amount)
-                    # if user have enough balance
-                    if bet_amount < gamble_data[user_name]:
-                        await interaction.response.send_message(embed=discord.Embed(
-                            title=":money_with_wings:じゃんけん | ギャンブル:money_with_wings:",
-                            description=f"{user.mention}はじゃんけんに{clean_money_display(bet_amount)}賭けました",
-                            color=discord.Color.yellow()
-                        ))
-                        await update_bal_delta(-bet_amount, user_name)
-                    # if its effectively an all in
-                    elif bet_amount == gamble_data[user_name]:
-                        await interaction.response.send_message(embed=discord.Embed(
-                            title=":money_with_wings:じゃんけん | ALL-IN:exclamation:",
-                            description=f"{user.mention}はじゃんけんに**全額ベット**しました:bangbang: 賭け金は{clean_money_display(bet_amount)}",
-                            color=discord.Color.light_embed()
-                        ))
-                        await update_bal(0, user_name)
-                    # if user doesn't have enough balance
-                    else:
-                        await interaction.response.send_message(embed=discord.Embed(
-                            title=":x:じゃんけんゲーム無効:bangbang:", 
-                            description=f"{user.mention}様の残高は{clean_money_display(gamble_data[user_name])}です。それ以下で賭けてください。", 
-                            color=discord.Color.red()
-                        ))
-                        return
-                # not an integer and not all in
-                except:
-                    await interaction.response.send_message("{user.mention}様、数字か「`all`」か「`オール`」を入力してください")
-                    return
-        
+        bet_amount_check_response, bet_amount = await self.check_bet_amount(
+            bet_amount=bet_amount, 
+            user=user, 
+            game_name="gamble"
+            )
+        if isinstance(bet_amount_check_response, str):
+            await interaction.response.send_message(bet_amount_check_response)
+        elif isinstance(bet_amount_check_response, discord.Embed):
+            await interaction.response.send_message(embed=bet_amount_check_response)
+        else:
+            print(f"invalid return of {type(bet_amount_check_response)}")
+            return
                 
         # opponent in question
         if opponent is None:
@@ -195,6 +162,61 @@ class GambleCog(commands.Cog):
         self.midgame_rps_users = set()
         embed = discord.Embed(title="set_reset", description=f"In-Game sets reset complete :D", color=discord.Color.brand_green())
         await interaction.response.send_message(embed=embed)
+
+    async def check_bet_amount(self, bet_amount, user, game_name):
+        response = None
+        user_name = user.name
+        bet_amount_response = None
+
+        # check user's bal's existence
+        gamble_data = await read_json("gamble")
+        # get data
+        gamble_data = await check_user_in_gamble_data(gamble_data, user_name)
+
+        # if bet_amount : str
+        if isinstance(bet_amount, str):
+            # is bet_amount == all in
+            if bet_amount.lower() in {"all","オール"}:
+                bet_amount = gamble_data[user_name]
+                response = discord.Embed(
+                    title=":money_with_wings:ALL-IN:exclamation:",
+                    description=f"{user.mention}は{game_name}に**全額ベット**しました:bangbang: 賭け金={clean_money_display(bet_amount)}",
+                    color=discord.Color.light_embed()
+                )
+                await update_bal(0, user_name)
+            # if not all in
+            else:
+                try:
+                    # bet_amount : str > int (check can it be turned to int)
+                    bet_amount = int(bet_amount)
+                    # if user have enough balance
+                    if bet_amount < gamble_data[user_name]:
+                        response = discord.Embed(
+                            title=":money_with_wings:{game_name} | ギャンブル:money_with_wings:",
+                            description=f"{user.mention}は{game_name}に{clean_money_display(bet_amount)}賭けました",
+                            color=discord.Color.yellow()
+                        )
+                        await update_bal_delta(-bet_amount, user_name)
+                    # if its effectively an all in
+                    elif bet_amount == gamble_data[user_name]:
+                        response = discord.Embed(
+                            title=":money_with_wings:{game_name} | ALL-IN:exclamation:",
+                            description=f"{user.mention}は{game_name}に**全額ベット**しました:bangbang: 賭け金は{clean_money_display(bet_amount)}",
+                            color=discord.Color.light_embed()
+                        )
+                        await update_bal(0, user_name)
+                    # if user doesn't have enough balance
+                    else:
+                        response = discord.Embed(
+                            title=":x:{game_name}ゲーム無効:bangbang:", 
+                            description=f"{user.mention}様の残高は{clean_money_display(gamble_data[user_name])}です。それ以下で賭けてください。", 
+                            color=discord.Color.red()
+                        )
+                # not an integer and not all in
+                except:
+                    response = "{user.mention}様、数字か「`all`」か「`オール`」を入力してください"
+        # return response to /command invoking this function
+        return response, bet_amount
 
     def rps_init_embed(self):
         embed=discord.Embed(title="じゃんけん! :fist: :raised_hand: :v:", color=discord.Color.blurple())

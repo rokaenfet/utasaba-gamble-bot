@@ -29,7 +29,11 @@ def get_guild_id():
     return 1243840681944813679
 
 def clean_money_display(money):
-    return f"{format(money,',')}:coin:"
+    try:
+        formatted_money = f"{format(money,',')}:coin:"
+        return formatted_money
+    except Exception as e:
+        print(f"Exception = {e}\ninput = {money}\ntype = {type(money)}")
 
 # ASYNCH
 
