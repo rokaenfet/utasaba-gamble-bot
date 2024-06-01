@@ -1,11 +1,13 @@
 from discord.ext import commands
 from discord import app_commands
 from funcs import *
+from commands_argument import CommandArg
 import typing
 import os
 import time
 import asyncio
 import random
+
 
 class GambleCog(commands.Cog):
     def __init__(self, bot):
@@ -13,7 +15,8 @@ class GambleCog(commands.Cog):
         self.midbet_users = set()
         self.midgame_rps_users = set()
         self.GAMBLE_RATES = {
-            "rps":3
+            "rps":2.5,
+            "flip":2
         }
         self.VERBOSE = False
 
@@ -46,10 +49,18 @@ class GambleCog(commands.Cog):
         embed = discord.Embed(title=f":euro: 残高 :dollar:", description=f"{user.mention}の残高\n{clean_money_display(gamble_data[user_name])}", color=discord.Color.magenta())
         await interaction.response.send_message(embed=embed)
 
+    @app_commands.command(name="flip", description="コインの表裏のギャンブル")
+    @app_commands.describe(
+        bet_amount=CommandArg.ALL_COMMAND_ARGUMENT_DESCRIPTIONS["bet_amount"],
+        side=CommandArg.ALL_COMMAND_ARGUMENT_DESCRIPTIONS["side"]
+    )
+    async def flip(self, interaction:discord.Interaction, bet_amount:str, side:str):
+        pass
+
     @app_commands.command(name="rps", description="ギャンブルジャンケン")
     @app_commands.describe(
-        bet_amount="「all」でオールイン、または数字入力でその額をベット e.g. 「100」",
-        opponent="相手となる@[ユーザー名]。入力なしでボット相手に変更"
+        bet_amount=CommandArg.ALL_COMMAND_ARGUMENT_DESCRIPTIONS["bet_amount"],
+        opponent=CommandArg.ALL_COMMAND_ARGUMENT_DESCRIPTIONS["opponent"]
     )
     async def rps(self, interaction:discord.Interaction, bet_amount:str, opponent:discord.Member = None):
         # user in question
@@ -161,7 +172,7 @@ class GambleCog(commands.Cog):
                 return
         if winner is not None:
             if winner == "player":
-                win_amount = bet_amount*self.GAMBLE_RATES["rps"]
+                win_amount = int(bet_amount*self.GAMBLE_RATES["rps"])
                 await update_bal_delta(win_amount, user_name)
                 gamble_data = await read_json("gamble")
                 await interaction.followup.send(embed = discord.Embed(

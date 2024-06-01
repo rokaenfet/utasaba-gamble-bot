@@ -1,6 +1,7 @@
 from discord.ext import commands
 from discord import app_commands
 from funcs import *
+from commands_argument import CommandArg
 import os
 import time
 import datetime

@@ -3,6 +3,7 @@ import os
 import time
 import typing
 from funcs import *
+from commands_argument import CommandArg
 from discord.ext import commands
 from discord import app_commands
 
