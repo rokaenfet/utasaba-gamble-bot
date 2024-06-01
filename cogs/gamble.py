@@ -108,27 +108,61 @@ class GambleCog(commands.Cog):
         bet_amount="賭け金・'all'でオールイン、または数字入力でその額をベット",
         opponent="相手となる@[ユーザー名]。入力なしでボット相手に変更"
     )
-    async def rps(self, interaction:discord.Interaction, bet_amount:typing.Union[str,int], opponent:discord.Member = None):
-        # check bet_amount is valid
-        if isinstance(bet_amount, str) and bet_amount.lower() == "all":
-            await interaction.response.send_message("全額ベットォォ！ :money_with_wings:")
-        elif isinstance(bet_amount, int):
-            # check bet_amount
-            gamble_data = await read_json("gamble")
-            if bet_amount > gamble_data[user_name]:
-                interaction.response.send_message("そんなお金ないよ?\n/`bal`で自分の残高を確認してみて:question:")
-                return
-            await interaction.response.send_message(f"あなたは{bet_amount}:coin:賭けました!")
-        else:
-            await interaction.response.send_message(":x: 不適切な入力。整数か`all`と入力してください:pray:")
-            return
-        
-        print(bet_amount, opponent)
-        
+    async def rps(self, interaction:discord.Interaction, bet_amount:str, opponent:discord.Member = None):
         # user in question
         user = interaction.user
         user_name = user.name
+
+        # check user's bal's existence
+        gamble_data = await read_json("gamble")
+        # get data
+        gamble_data = await check_user_in_gamble_data(gamble_data, user_name)
+
+        # if bet_amount : str
+        if isinstance(bet_amount, str):
+            # is bet_amount == all in
+            if bet_amount.lower() in {"all","オール"}:
+                bet_amount = gamble_data[user_name]
+                await interaction.response.send_message(embed=discord.Embed(
+                    title=":money_with_wings:ALL-IN:exclamation:",
+                    description=f"{user.mention}はじゃんけんに**全額ベット**しました:bangbang: 賭け金={bet_amount}:coin:",
+                    color=discord.Color.light_embed()
+                ))
+                await update_bal(0, user_name)
+            # if not all in
+            else:
+                try:
+                    # if bet_amount : int
+                    bet_amount = int(bet_amount)
+                    # if user have enough balance
+                    if bet_amount < gamble_data[user_name]:
+                        await interaction.response.send_message(embed=discord.Embed(
+                            title=":money_with_wings:じゃんけん | ギャンブル:money_with_wings:",
+                            description=f"{user.mention}はじゃんけんに{bet_amount}:coin:賭けました",
+                            color=discord.Color.yellow()
+                        ))
+                        await update_bal_delta(-bet_amount, user_name)
+                    # if its effectively an all in
+                    elif bet_amount == gamble_data[user_name]:
+                        await interaction.response.send_message(embed=discord.Embed(
+                            title=f":money_with_wings:じゃんけん | ALL-IN:exclamation:",
+                            description="{user.mention}はじゃんけんに**全額ベット**しました:bangbang: 賭け金は{bet_amount}:coin:",
+                            color=discord.Color.light_embed()
+                        ))
+                        await update_bal(0, user_name)
+                    # if user doesn't have enough balance
+                    else:
+                        await interaction.response.send_message(embed=discord.Embed(
+                            title=":x:じゃんけんゲーム無効:bangbang:", 
+                            description=f"{user.mention}様の残高は{gamble_data[user_name]}:coin:です。それ以下で賭けてください。", 
+                            color=discord.Color.red()
+                        ))
+                # not an integer and not all in
+                except:
+                    await interaction.response.send_message("{user.mention}様、数字か「`all`」か「`オール`」を入力してください")
+                    return
         
+                
         # opponent in question
         if opponent is None:
             opponent = self.bot.user
@@ -184,13 +218,13 @@ class GambleCog(commands.Cog):
             except asyncio.TimeoutError:
                 # self.midgame_rps_users.remove(player_id)
                 await interaction.followup.send("もっと早く手をだして！最初から :person_shrugging:")
-                update_bal_delta(bet_amount, user_name)
+                await update_bal_delta(bet_amount, user_name)
                 return
         if winner is not None:
             if winner == "player":
                 win_amount = bet_amount*self.GAMBLE_RATES["rps"]
-                update_bal_delta(win_amount, user_name)
-                gamble_data = await read_json()
+                await update_bal_delta(win_amount, user_name)
+                gamble_data = await read_json("gamble")
                 await interaction.followup.send(embed = discord.Embed(
                     title = "YOU WIN!! :crown:", 
                     description=f"{user.mention}は{win_amount}:coin:勝ちました！\n現在の残高は{gamble_data[user_name]}:coin:です"))
