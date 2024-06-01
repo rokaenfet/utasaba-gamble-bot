@@ -55,7 +55,23 @@ class GambleCog(commands.Cog):
         side=CommandArg.ALL_COMMAND_ARGUMENT_DESCRIPTIONS["side"]
     )
     async def flip(self, interaction:discord.Interaction, bet_amount:str, side:str):
-        pass
+        # user in qs
+        user = interaction.user
+        user_name = user.name
+
+        # check bet_amount, and get reply message [str | embed] and bet_amout [int]
+        bet_amount_check_response, bet_amount = await self.check_bet_amount(
+            bet_amount=bet_amount, 
+            user=user, 
+            game_name="gamble"
+            )
+        if isinstance(bet_amount_check_response, str):
+            await interaction.response.send_message(bet_amount_check_response)
+        elif isinstance(bet_amount_check_response, discord.Embed):
+            await interaction.response.send_message(embed=bet_amount_check_response)
+        else:
+            print(f"invalid return of {type(bet_amount_check_response)}")
+            return
 
     @app_commands.command(name="rps", description="ギャンブルジャンケン")
     @app_commands.describe(
@@ -67,11 +83,7 @@ class GambleCog(commands.Cog):
         user = interaction.user
         user_name = user.name
 
-        # check user's bal's existence
-        gamble_data = await read_json("gamble")
-        # get data
-        gamble_data = await check_user_in_gamble_data(gamble_data, user_name)
-
+        # check bet_amount, and get reply message [str | embed] and bet_amout [int]
         bet_amount_check_response, bet_amount = await self.check_bet_amount(
             bet_amount=bet_amount, 
             user=user, 
