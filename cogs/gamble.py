@@ -54,10 +54,14 @@ class GambleCog(commands.Cog):
         bet_amount=CommandArg.ALL_COMMAND_ARGUMENT_DESCRIPTIONS["bet_amount"],
         side=CommandArg.ALL_COMMAND_ARGUMENT_DESCRIPTIONS["side"]
     )
-    async def flip(self, interaction:discord.Interaction, bet_amount:str, side:str):
+    async def flip(self, interaction:discord.Interaction, bet_amount:str, side:str = "表"):
         # user in qs
         user = interaction.user
         user_name = user.name
+
+        if side not in ("表","おもて","オモテ","裏","うら","ウラ"):
+            await interaction.response.send_message(f"「表」か「裏」と入力してください:exclamation:")
+            return
 
         # check bet_amount, and get reply message [str | embed] and bet_amout [int]
         bet_amount_check_response, bet_amount = await self.check_bet_amount(
@@ -72,6 +76,19 @@ class GambleCog(commands.Cog):
         else:
             print(f"invalid return of {type(bet_amount_check_response)}")
             return
+        
+        # get win/loss
+        win = random.choice((0,1)) == 0
+        # get response
+        response = await self.display_win_loss_result(
+            win = win, 
+            bet_amount = bet_amount, 
+            user = user, 
+            gamble_name = "コイン",
+            rates = self.GAMBLE_RATES["flip"]
+            )
+        await interaction.followup.send(embed=response)
+
 
     @app_commands.command(name="rps", description="ギャンブルジャンケン")
     @app_commands.describe(
@@ -150,22 +167,15 @@ class GambleCog(commands.Cog):
                 await update_bal_delta(bet_amount, user_name)
                 return
         if winner is not None:
-            if winner == "player":
-                win_amount = int(bet_amount*self.GAMBLE_RATES["rps"])
-                await update_bal_delta(win_amount, user_name)
-                gamble_data = await read_json("gamble")
-                await interaction.followup.send(embed = discord.Embed(
-                    title = "YOU WIN!! :crown:", 
-                    description=f"{user.mention}は{clean_money_display(win_amount)}勝ちました！\n現在の残高は{clean_money_display(gamble_data[user_name])}です",
-                    color=discord.Color.purple())
+            win = winner == "player"
+            response = await self.display_win_loss_result(
+                win = win, 
+                bet_amount = bet_amount, 
+                user = user, 
+                gamble_name="じゃんけん",
+                rates = self.GAMBLE_RATES["rps"]
                 )
-            else:
-                lose_amount = bet_amount
-                await interaction.followup.send(embed = discord.Embed(
-                    title = ":regional_indicator_l: YOU LOSE :sob:", 
-                    description=f"{user.mention}は{clean_money_display(lose_amount)}負けたよ、、、\n現在の残高は{clean_money_display(gamble_data[user_name])}です",
-                    color=discord.Color.blue())
-                )
+            await interaction.followup.send(embed = response)
     
     @app_commands.command(name="reload_player_sets", description="remove players from in-game list")
     @commands.is_owner()
@@ -174,6 +184,27 @@ class GambleCog(commands.Cog):
         self.midgame_rps_users = set()
         embed = discord.Embed(title="set_reset", description=f"In-Game sets reset complete :D", color=discord.Color.brand_green())
         await interaction.response.send_message(embed=embed)
+
+    async def display_win_loss_result(self, win:bool, bet_amount:int, user, gamble_name:str, rates:float):
+        user_name = user.name
+        gamble_data = await read_json("gamble")
+        if win:
+            win_amount = int(bet_amount*rates)
+            await update_bal_delta(win_amount, user_name)
+            gamble_data = await read_json("gamble")
+            embed = discord.Embed(
+                title = f"{gamble_name}ギャンブル **YOU WIN**:bangbang: :crown:", 
+                description=f"{user.mention}は{clean_money_display(win_amount)}勝ちました！\n現在の残高は{clean_money_display(gamble_data[user_name])}です",
+                color=discord.Color.purple()
+            )
+        else:
+            lose_amount = bet_amount
+            embed = discord.Embed(
+                title = f":regional_indicator_l: {gamble_name}ギャンブル **YOU LOSE**... :sob:", 
+                description=f"{user.mention}は{clean_money_display(lose_amount)}負けたよ、、、\n現在の残高は{clean_money_display(gamble_data[user_name])}です",
+                color=discord.Color.blue()
+            )
+        return embed
 
     async def check_bet_amount(self, bet_amount, user, game_name):
         response = None
@@ -191,7 +222,7 @@ class GambleCog(commands.Cog):
             if bet_amount.lower() in {"all","オール"}:
                 bet_amount = gamble_data[user_name]
                 response = discord.Embed(
-                    title=":money_with_wings:ALL-IN:exclamation:",
+                    title=f":money_with_wings:ALL-IN:exclamation:",
                     description=f"{user.mention}は{game_name}に**全額ベット**しました:bangbang: 賭け金={clean_money_display(bet_amount)}",
                     color=discord.Color.light_embed()
                 )
@@ -204,7 +235,7 @@ class GambleCog(commands.Cog):
                     # if user have enough balance
                     if bet_amount < gamble_data[user_name]:
                         response = discord.Embed(
-                            title=":money_with_wings:{game_name} | ギャンブル:money_with_wings:",
+                            title=f":money_with_wings:{game_name} | ギャンブル:money_with_wings:",
                             description=f"{user.mention}は{game_name}に{clean_money_display(bet_amount)}賭けました",
                             color=discord.Color.yellow()
                         )
@@ -212,7 +243,7 @@ class GambleCog(commands.Cog):
                     # if its effectively an all in
                     elif bet_amount == gamble_data[user_name]:
                         response = discord.Embed(
-                            title=":money_with_wings:{game_name} | ALL-IN:exclamation:",
+                            title=f":money_with_wings:{game_name} | ALL-IN:exclamation:",
                             description=f"{user.mention}は{game_name}に**全額ベット**しました:bangbang: 賭け金は{clean_money_display(bet_amount)}",
                             color=discord.Color.light_embed()
                         )
@@ -220,13 +251,13 @@ class GambleCog(commands.Cog):
                     # if user doesn't have enough balance
                     else:
                         response = discord.Embed(
-                            title=":x:{game_name}ゲーム無効:bangbang:", 
+                            title=f":x:{game_name}ゲーム無効:bangbang:", 
                             description=f"{user.mention}様の残高は{clean_money_display(gamble_data[user_name])}です。それ以下で賭けてください。", 
                             color=discord.Color.red()
                         )
                 # not an integer and not all in
                 except:
-                    response = "{user.mention}様、数字か「`all`」か「`オール`」を入力してください"
+                    response = f"{user.mention}様、数字か「`all`」か「`オール`」を入力してください"
         # return response to /command invoking this function
         return response, bet_amount
 
