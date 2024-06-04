@@ -86,7 +86,6 @@ class OwnerCog(commands.Cog):
             print(f"{user_name} has never received a daily reward. JSON does not exist")
         # set daily.json[user_name][last_daily] to yesterday
         daily_data[user_name]["last_daily"] = encode_datetime_timestamp(decode_datetime_timestamp(daily_data[user_name]["last_daily"]) - datetime.timedelta(days=1))
-        print(daily_data)
         update_json("daily", daily_data)
         await interaction.response.send_message(f"{user.mention} can now invoke `/daily` again")
 
