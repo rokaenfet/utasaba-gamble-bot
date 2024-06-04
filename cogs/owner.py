@@ -69,6 +69,27 @@ class OwnerCog(commands.Cog):
                 value=f'LOAD {"SUCCESS" if els else "FAILED"}: {load_duration}s', inline=False)
         await interaction.followup.send(embed=embed)
 
+    @app_commands.command(name="reset_daily", description="reset the daily for a specific user")
+    @commands.is_owner()
+    async def reset_daily(self, interaction:discord.Interaction, user:discord.Member = None):
+        # parse user arg
+        if user is None:
+            user = interaction.user
+        else:
+            user = user
+        user_name = user.name
+        # get daily.json
+        daily_data = await read_json("daily")
+        try:
+            user_daily_data = daily_data[user_name]
+        except:
+            print(f"{user_name} has never received a daily reward. JSON does not exist")
+        # set daily.json[user_name][last_daily] to yesterday
+        daily_data[user_name]["last_daily"] = encode_datetime_timestamp(decode_datetime_timestamp(daily_data[user_name]["last_daily"]) - datetime.timedelta(days=1))
+        print(daily_data)
+        update_json("daily", daily_data)
+        await interaction.response.send_message(f"{user.mention} can now invoke `/daily` again")
+
     @commands.command()
     @commands.is_owner()
     async def shutdown(self, ctx):

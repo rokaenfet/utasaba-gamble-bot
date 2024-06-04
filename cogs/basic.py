@@ -41,26 +41,6 @@ class BasicCog(commands.Cog):
 
     @app_commands.command(name="daily", description="１日一回のデイリー報酬をもらうコマンド")
     async def daily(self, interaction:discord.Interaction):
-        def encode_datetime_timestamp(now:datetime.datetime):
-            return {
-                "year":now.year, 
-                "month":now.month, 
-                "day":now.day,
-                "hour":now.hour,
-                "minute":now.minute,
-                "second":now.second
-            }
-        def decode_datetime_timestamp(now:dict):
-            return datetime.datetime(
-                year=now["year"],
-                month=now["month"],
-                day=now["day"],
-                hour=now["hour"],
-                minute=now["minute"],
-                second=now["second"],
-                tzinfo=datetime.timezone.utc
-            )
-        
         # user
         user = interaction.user
         user_name = user.name

@@ -5,18 +5,19 @@ import sys
 import aiofiles
 import datetime
 import dateutil.parser
+import typing
 from discord.ext import commands
 from dotenv import load_dotenv
 from pretty_help import PrettyHelp
 
 # FUNC
 
-def update_json(json_name, dict):
+def update_json(json_name:str, dict:dict):
     f = open(f"json/{json_name}.json",mode="w")
     json.dump(dict, f, indent=6, skipkeys=True)
     f.close()
 
-def check_is_num(txt):
+def check_is_num(txt:str):
     try:
         val = int(txt)
         return True
@@ -30,30 +31,48 @@ def get_extensions():
 def get_guild_id():
     return 1243840681944813679
 
-def clean_money_display(money):
+def clean_money_display(money:typing.Union[str,int]):
     try:
         formatted_money = f"{format(money,',')}:coin:"
         return formatted_money
     except Exception as e:
         print(f"Exception = {e}\ninput = {money}\ntype = {type(money)}")
 
-
+def encode_datetime_timestamp(now:datetime.datetime):
+    return {
+        "year":now.year, 
+        "month":now.month, 
+        "day":now.day,
+        "hour":now.hour,
+        "minute":now.minute,
+        "second":now.second
+    }
+def decode_datetime_timestamp(now:dict):
+    return datetime.datetime(
+        year=now["year"],
+        month=now["month"],
+        day=now["day"],
+        hour=now["hour"],
+        minute=now["minute"],
+        second=now["second"],
+        tzinfo=datetime.timezone.utc
+    )
 
 # ASYNCH
 
-async def read_json(json_name):
+async def read_json(json_name:str):
     f = open(f"json/{json_name}.json")
     data = json.load(f)
     f.close()
     return data
     
-async def check_user_in_gamble_data(gamble_data, user):
+async def check_user_in_gamble_data(gamble_data:dict, user:str):
     # if user_name not registed in json
     if user not in gamble_data:
         gamble_data[user] = 0
     return gamble_data
     
-async def update_bal(amount, user):
+async def update_bal(amount:int, user:str):
     """
     amount [int]
     user_name = str [ctx.author.name]
@@ -63,7 +82,7 @@ async def update_bal(amount, user):
     gamble_data[user] = amount
     update_json("gamble", gamble_data)
 
-async def update_bal_delta(amount, user):
+async def update_bal_delta(amount:int, user:str):
     """
     amount [int]
     user_name += str [ctx.author.name]
