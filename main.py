@@ -3,6 +3,7 @@ import discord
 import asyncio
 import time
 import logging
+import schedule
 from discord.ext import commands
 from dotenv import load_dotenv
 from pretty_help import PrettyHelp
@@ -65,12 +66,5 @@ async def sync(ctx):
 # MAIN
 def main():
     bot.run(token=DISCORD_TOKEN, log_handler=handler)
-    # async with bot:
-    #     await bot.start(DISCORD_TOKEN, log_handler=handler)
-main()
 
-# bot.start MAIN
-# async def main():
-#     async with bot:
-#         await bot.start(DISCORD_TOKEN, log_handler=handler)
-# asyncio.run(main)
+main()

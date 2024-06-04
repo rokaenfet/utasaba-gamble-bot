@@ -49,7 +49,6 @@ class CommandArg():
     ALL_COMMAND_ARGUMENT_DESCRIPTIONS = dict()
     # merge all above dict into 1
     for (common, unique) in command_descriptions:
-        print(common, unique)
         ALL_COMMAND_ARGUMENT_DESCRIPTIONS = {
             **ALL_COMMAND_ARGUMENT_DESCRIPTIONS,
             **common[1],

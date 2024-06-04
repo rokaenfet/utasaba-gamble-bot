@@ -3,6 +3,8 @@ import discord
 import json
 import sys
 import aiofiles
+import datetime
+import dateutil.parser
 from discord.ext import commands
 from dotenv import load_dotenv
 from pretty_help import PrettyHelp
@@ -34,6 +36,8 @@ def clean_money_display(money):
         return formatted_money
     except Exception as e:
         print(f"Exception = {e}\ninput = {money}\ntype = {type(money)}")
+
+
 
 # ASYNCH
 
@@ -68,3 +72,15 @@ async def update_bal_delta(amount, user):
     gamble_data = await check_user_in_gamble_data(gamble_data, user)
     gamble_data[user] += amount
     update_json("gamble", gamble_data)
+
+# JSON ENCODER / DECODER
+
+# class DateTimeEncoder(json.JSONEncoder):
+#     def default(self, obj):
+#         if isinstance(obj, (datetime.date, datetime.datetime)):
+#             return obj.isoformat()
+            
+# def DecodeDateTime(empDict):
+#    if 'joindate' in empDict:
+#       empDict["joindate"] = dateutil.parser.parse(empDict["joindate"])
+#       return empDict
