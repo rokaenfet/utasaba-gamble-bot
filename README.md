@@ -44,7 +44,7 @@ DISCORD_TOKEN=[insert token]
 ### Functionality
 - [ ] Bot Env
   - [ ] Transform to SQL DB
-  - [ ] Slash commands rather than prefix commands e.g. `!info ` to ` /info`
+  - [x] Slash commands rather than prefix commands e.g. `!info ` to ` /info`
 - [ ] Basic
   - [x] info
   - [x] bal
@@ -57,7 +57,7 @@ DISCORD_TOKEN=[insert token]
     - [ ] Rock Paper Scissors
       - [x] VS bot
       - [ ] VS player
-    - [ ] Coin flip
+    - [x] Coin flip
     - [ ] Horse Racing
     - [ ] Black Jack
       - [ ] solo
@@ -77,9 +77,20 @@ DISCORD_TOKEN=[insert token]
       - [ ] Only reward if image is deemed a food img by AI
     - [ ] Posting an image of animals in a specific chat
       - [ ] Only reward if image is deemed a food img by AI
+    - [x] reward small amount of money if valid しりとり answer
 - [ ] member management
+  - [ ] checkしりとりvalidity
+    - [x] finishing in ん?
+    - [x] ちゃんと「尻」「取り」してる？
+    - [ ] is it an existing word? (need AI)
+    - [ ] dont allow user to play twice in a row
   - [ ] assign certain roles given text input in a specific thread e.g. `#見ざる`　`#囁き隊`
 - [x] owner/admin
   - [x] sync commands
   - [x] reload extensions
   - [x] give money
+
+
+### tools / urls
+- https://emojipedia.org
+  - for getting default emoji's UTF code

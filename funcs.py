@@ -6,6 +6,7 @@ import aiofiles
 import datetime
 import dateutil.parser
 import typing
+import re
 from discord.ext import commands
 from dotenv import load_dotenv
 from pretty_help import PrettyHelp
@@ -59,6 +60,11 @@ def decode_datetime_timestamp(now:dict):
     )
 
 # ASYNCH
+
+async def find_japanese_from_str(s):
+    pattern = r'[\u3040-\u30ff\u3400-\u4dbf\u4e00-\u9fff\uf900-\ufaff\uff66-\uff9f]'
+    res = re.findall(pattern, s)
+    return res
 
 async def read_json(json_name:str):
     f = open(f"json/{json_name}.json")

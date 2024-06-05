@@ -89,6 +89,34 @@ class OwnerCog(commands.Cog):
         update_json("daily", daily_data)
         await interaction.response.send_message(f"{user.mention} can now invoke `/daily` again")
 
+    @app_commands.command(name="get_channel_text", description="get all text in a given text channel")
+    @commands.is_owner()
+    async def get_channel_text(self, interaction:discord.Interaction, channel:discord.TextChannel, history:int=10):
+        def format_rep(arr):
+            s = ""
+            for n in arr:
+                s += f"\n{n}"
+            print(s)
+            return s
+        messages = [message.content async for message in channel.history(limit=history+1)]
+        try:
+            await interaction.response.send_message(f"the **last {history} messages** on channel {channel.mention} is...{format_rep(messages)}")
+        except:
+            await interaction.response.send_message(f"history msg is too long")
+
+    @app_commands.command(name="purge", description="remove some amount of messages")
+    @app_commands.describe(
+        channel ="channel to remove texts from",
+        number  ="quantity of messages to remove"
+    )
+    @commands.is_owner()
+    async def purge(self, interaction:discord.Interaction, channel:discord.TextChannel, number:int):
+        num_messages = len([message async for message in channel.history(limit=100)])
+        await interaction.response.defer()
+        purged = await channel.purge(limit=min(num_messages, number))
+        await interaction.followup.send(f"{min(num_messages,number)} messages has been purged from {channel.mention}")
+
+
     @commands.command()
     @commands.is_owner()
     async def shutdown(self, ctx):
