@@ -82,10 +82,10 @@ DISCORD_TOKEN=[insert token]
   - [ ] checkしりとりvalidity
     - [x] finishing in ん?
     - [x] ちゃんと「尻」「取り」してる？
-    - [ ] mapping between カタカナ & ひらがな
+    - [x] mapping between カタカナ & ひらがな
     - [ ] is it an existing word? (need AI)
     - [x] no duplicate words
-    - [ ] handle small case chars and `-`
+    - [x] handle small case chars and `-`
     - [ ] 金貨(きんか) > きんか
     - [x] strip messages of special characters
   - [ ] assign certain roles given text input in a specific thread e.g. `#見ざる`　`#囁き隊`
