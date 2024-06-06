@@ -7,6 +7,7 @@ import datetime
 import dateutil.parser
 import typing
 import re
+import time
 from discord.ext import commands
 from dotenv import load_dotenv
 from pretty_help import PrettyHelp
@@ -59,6 +60,12 @@ def decode_datetime_timestamp(now:dict):
         tzinfo=datetime.timezone.utc
     )
 
+def strip_special_chars(msg_str:str):
+    special_chars = ["!",",",".","。","?"]
+    for specials in special_chars:
+        msg_str = msg_str.replace(specials,"")
+    return msg_str
+
 # ASYNCH
 
 async def find_japanese_from_str(s):
@@ -97,6 +104,59 @@ async def update_bal_delta(amount:int, user:str):
     gamble_data = await check_user_in_gamble_data(gamble_data, user)
     gamble_data[user] += amount
     update_json("gamble", gamble_data)
+
+# SHIRITORI
+async def shiritori_on_ready(bot:commands.Bot, TEXT_CHANNEL_ID:int):
+    """
+    bot:discord.ext.commands.Bot
+    TEXT_CHANNEL_ID:int
+    get [TEXT_CHANNEL_ID]'s history, saves 100 past messages and last message and sent user into shiritori.json
+    """
+    # load specified text_channel's history
+    text_channel = bot.get_channel(TEXT_CHANNEL_ID)
+    # order from oldest = [0], newest = [-1]
+    t = time.time()
+    messages = [message async for message in text_channel.history(limit=100)]
+    if len(messages) == 0:
+        await text_channel.send(f"しりとり")
+        update_json("shiritori", {"last_message":"しりとり", "user":bot.user.name, "history":["しりとり"]})
+    else:
+        # check for last message which doesn't end in ん and is all japanese
+        for msg in messages:
+            msg_str = msg.content
+            # strip special chars
+            msg_str = strip_special_chars(msg_str)
+            jp_chars = await find_japanese_from_str(msg_str)
+            if len(jp_chars) > 0 and len(jp_chars) == len(msg_str) and msg_str[-1] != "ん":
+                break
+        update_json("shiritori", {"last_message":msg_str, "user":msg.author.name, "history": [n.content for n in messages]})
+    print(f"loaded all msg in #{text_channel}. Load time: {round(time.time()-t,3)}s")
+
+
+# ON_MESSAGE_SEND
+
+async def shiritori_on_message(msg:discord.Message):
+    """
+    msg:discord.Message
+    if msg is in the shiritori text channel and is not from this bot
+    check if msg is a valid shiritori word
+    """
+    shiritori_data = await read_json("shiritori")
+    last_word = shiritori_data["last_message"]
+    cur_msg_content = msg.content
+    stripped_cur_msg_content = strip_special_chars(cur_msg_content)
+    if stripped_cur_msg_content[-1] != "ん" and stripped_cur_msg_content[0] == last_word[-1] and stripped_cur_msg_content not in shiritori_data["history"]:
+        update_json("shiritori",{
+            "last_message":stripped_cur_msg_content,
+            "user":msg.author.name, 
+            "history":shiritori_data["history"]+[stripped_cur_msg_content]
+            })
+        await update_bal_delta(100, msg.author.name)
+        await msg.add_reaction(str("✅"))
+    else:
+        await msg.add_reaction(str("❌"))
+        await msg.channel.send(f"現在の言葉は`{shiritori_data['last_message']}`です:exclamation:")
+
 
 # JSON ENCODER / DECODER
 

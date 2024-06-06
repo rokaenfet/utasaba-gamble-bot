@@ -50,49 +50,15 @@ async def on_ready():
     # CONFIRM LOGIN
     print(f'\n\nLogged in as: {bot.user.name} - {bot.user.id}\nVersion: {discord.__version__}\n')
 
-    # SHIRITORI
-    # load specified text_channel's history
-    text_channel = bot.get_channel(TEXT_CHANNEL_ID)
-    # order from oldest = [0], newest = [-1]
-    t = time.time()
-    messages = [message async for message in text_channel.history(limit=None)]
-    if len(messages) == 0:
-        await text_channel.send(f"しりとり")
-        update_json("shiritori", {"last_message":"しりとり", "user":bot.user.name})
-    else:
-        # check for last message which doesn't end in ん and is all japanese
-        special_chars = ["!",",",".","。","?"]
-        for msg in messages:
-            msg_str = msg.content
-            # strip special chars
-            for specials in special_chars:
-                msg_str = msg_str.replace(specials,"")
-            jp_chars = await find_japanese_from_str(msg_str)
-            if len(jp_chars) > 0 and len(jp_chars) == len(msg_str) and msg_str[-1] != "ん":
-                break
-        update_json("shiritori", {"last_message":msg_str, "user":msg.author.name})
-    temp = await read_json("shiritori")
-    print(f"loaded all msg in #{text_channel}. Load time: {round(time.time()-t,3)}s")
+    # SHIRITORI INIT
+    await shiritori_on_ready(bot=bot, TEXT_CHANNEL_ID=TEXT_CHANNEL_ID)
 
 # on message send in specific channel
 @bot.event
 async def on_message(msg:discord.Message):
     # only activate on designated text channel id
     if msg.channel.id == TEXT_CHANNEL_ID and msg.author.name != bot.user.name:
-        shiritori_data = await read_json("shiritori")
-        last_word = shiritori_data["last_message"]
-        cur_msg_content = msg.content
-        if cur_msg_content[-1] != "ん":
-            if cur_msg_content[0] == last_word[-1]:
-                update_json("shiritori",{"last_message":cur_msg_content,"user":msg.author.name})
-                await update_bal_delta(100, msg.author.name)
-                await msg.add_reaction(str("✅"))
-            else:
-                await msg.add_reaction(str("❌"))
-                await msg.channel.send(f"現在の言葉は`{shiritori_data['last_message']}`です:exclamation:")
-        else:
-            await msg.add_reaction(str("🆖"))
-            await msg.channel.send(f"現在の言葉は`{shiritori_data['last_message']}`です:exclamation:")
+        await shiritori_on_message(msg=msg)
             
     # if command is else where, proceed
     elif msg.channel.id != TEXT_CHANNEL_ID:
