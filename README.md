@@ -85,6 +85,8 @@ DISCORD_TOKEN=[insert token]
     - [ ] mapping between カタカナ & ひらがな
     - [ ] is it an existing word? (need AI)
     - [ ] dont allow user to play twice in a row
+    - [x] no duplicate words
+    - [ ] handle small case chars and `-`
   - [ ] assign certain roles given text input in a specific thread e.g. `#見ざる`　`#囁き隊`
 - [x] owner/admin
   - [x] sync commands
