@@ -45,6 +45,7 @@ class GambleCog(commands.Cog):
         user_name = user.name
         if user_name not in gamble_data:
             gamble_data[user] =  0
+        gamble_data = await check_user_in_gamble_data(gamble_data, user_name)
         update_json("gamble", gamble_data)
         embed = discord.Embed(title=f":euro: 残高 :dollar:", description=f"{user.mention}の残高\n{clean_money_display(gamble_data[user_name])}", color=discord.Color.magenta())
         await interaction.response.send_message(embed=embed)
@@ -96,6 +97,11 @@ class GambleCog(commands.Cog):
         opponent=CommandArg.ALL_COMMAND_ARGUMENT_DESCRIPTIONS["opponent"]
     )
     async def rps(self, interaction:discord.Interaction, bet_amount:str, opponent:discord.Member = None):
+        """
+        TO-DO
+        handle when no input for bet_amount
+        """
+        
         # user in question
         user = interaction.user
         user_name = user.name

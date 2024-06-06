@@ -73,9 +73,9 @@ DISCORD_TOKEN=[insert token]
   - [ ] Grant Money
     - [ ] Via being in VC for over some duration
       - [ ] Move users afk in VC for extended period of time with no activity
-    - [ ] Posting an image of food in a specific chat
+    - [ ] Posting an image of food in a specific chat daily "飯テロ"
       - [ ] Only reward if image is deemed a food img by AI
-    - [ ] Posting an image of animals in a specific chat
+    - [ ] Posting an image of animals in a specific chat daily "動物"
       - [ ] Only reward if image is deemed a food img by AI
     - [x] reward small amount of money if valid しりとり answer
 - [ ] member management
@@ -84,15 +84,16 @@ DISCORD_TOKEN=[insert token]
     - [x] ちゃんと「尻」「取り」してる？
     - [ ] mapping between カタカナ & ひらがな
     - [ ] is it an existing word? (need AI)
-    - [ ] dont allow user to play twice in a row
     - [x] no duplicate words
     - [ ] handle small case chars and `-`
+    - [ ] 金貨(きんか) > きんか
+    - [x] strip messages of special characters
   - [ ] assign certain roles given text input in a specific thread e.g. `#見ざる`　`#囁き隊`
 - [x] owner/admin
   - [x] sync commands
   - [x] reload extensions
   - [x] give money
-
+  - [ ] /help to display each category of commands easier
 
 ### tools / urls
 - https://emojipedia.org

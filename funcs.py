@@ -8,6 +8,7 @@ import dateutil.parser
 import typing
 import re
 import time
+import jaconv
 from discord.ext import commands
 from dotenv import load_dotenv
 from pretty_help import PrettyHelp
@@ -61,10 +62,14 @@ def decode_datetime_timestamp(now:dict):
     )
 
 def strip_special_chars(msg_str:str):
-    special_chars = ["!",",",".","。","?"]
+    special_chars = ["!","！",",",".","。","?","？"]
     for specials in special_chars:
         msg_str = msg_str.replace(specials,"")
     return msg_str
+
+def small_to_large_jp_trans(strj): #小文字を大文字に変換する関数
+    moji = str.maketrans("ァィゥェォャッュョ", "アイウエオヤユツヨ")
+    return strj.translate(moji)
 
 # ASYNCH
 
@@ -141,11 +146,31 @@ async def shiritori_on_message(msg:discord.Message):
     if msg is in the shiritori text channel and is not from this bot
     check if msg is a valid shiritori word
     """
+    trans_dict = {
+        "ぁ":"あ",
+        "ぃ":"い",
+        "ぅ":"う",
+        "ぇ":"え",
+        "ぉ":"お",
+        "ゃ":"や",
+        "ゅ":"ゆ",
+        "っ":"つ"
+    }
     shiritori_data = await read_json("shiritori")
+    # last message
     last_word = shiritori_data["last_message"]
+    # check 伸ばし棒
+    last_char = last_word[-2] if last_word[-1] == "ー" else last_word[-1]
+    # katakana > hiragana
+    last_char = jaconv.kata2hira(last_char)
+    # check small case ending
+    last_char = trans_dict[last_char] if last_char in trans_dict else last_char
+
+    # current message
     cur_msg_content = msg.content
+    # strip special characters from msg
     stripped_cur_msg_content = strip_special_chars(cur_msg_content)
-    if stripped_cur_msg_content[-1] != "ん" and stripped_cur_msg_content[0] == last_word[-1] and stripped_cur_msg_content not in shiritori_data["history"]:
+    if stripped_cur_msg_content[-1] != "ん" and stripped_cur_msg_content[0] == last_char and stripped_cur_msg_content not in shiritori_data["history"]:
         update_json("shiritori",{
             "last_message":stripped_cur_msg_content,
             "user":msg.author.name, 

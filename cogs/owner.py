@@ -30,6 +30,7 @@ class OwnerCog(commands.Cog):
         else:
             user = user
         user_name = user.name
+        gamble_data = await check_user_in_gamble_data(gamble_data, user_name)
         if money is None:
             money = gamble_data[user_name]
         prev_bal = gamble_data[user_name]
