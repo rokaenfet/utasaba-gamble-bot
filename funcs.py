@@ -71,6 +71,18 @@ def small_to_large_jp_trans(strj): #小文字を大文字に変換する関数
     moji = str.maketrans("ァィゥェォャッュョ", "アイウエオヤユツヨ")
     return strj.translate(moji)
 
+def find_string_between_bracket(s:str):
+    return s[s.find("(")+1:s.find(")")]
+
+def translate_jp_bracket_to_eng_bracket(s:str):
+    bracket_trans_dict = {
+        "（":"(",
+        "）":")"
+    }
+    return "".join([n if n not in bracket_trans_dict else bracket_trans_dict[n] for n in s])
+
+
+
 # ASYNCH
 
 async def find_japanese_from_str(s):
@@ -121,16 +133,22 @@ async def shiritori_on_ready(bot:commands.Bot, TEXT_CHANNEL_ID:int):
     text_channel = bot.get_channel(TEXT_CHANNEL_ID)
     # order from oldest = [0], newest = [-1]
     t = time.time()
-    messages = [message async for message in text_channel.history(limit=100)]
-    if len(messages) == 0:
-        await text_channel.send(f"しりとり")
+    messages = [message async for message in text_channel.history(limit=100) if message.author.name != bot.user.name]
+    # filter only messages with ()
+    messages_w_bracket = [n for n in messages if "(" in n.content and ")" in n.content]
+    if len(messages_w_bracket) == 0:
+        await text_channel.send(f"(しりとり)")
         update_json("shiritori", {"last_message":"しりとり", "user":bot.user.name, "history":["しりとり"]})
     else:
         # check for last message which doesn't end in ん and is all japanese
-        for msg in messages:
-            msg_str = msg.content
+        messages_in_bracket = [[find_string_between_bracket(translate_jp_bracket_to_eng_bracket(n.content)),n] for n in messages_w_bracket]
+        for msg_str,msg in messages_in_bracket:
+            print(msg_str)
             # strip special chars
             msg_str = strip_special_chars(msg_str)
+            # katakana2hiragana
+            msg_str = jaconv.kata2hira(msg_str)
+            # check its in japanese
             jp_chars = await find_japanese_from_str(msg_str)
             if len(jp_chars) > 0 and len(jp_chars) == len(msg_str) and msg_str[-1] != "ん":
                 break
@@ -156,6 +174,17 @@ async def shiritori_on_message(msg:discord.Message):
         "ゅ":"ゆ",
         "っ":"つ"
     }
+    # current message
+    cur_msg_content = msg.content
+    # change jp bracket to eng bracket
+    cur_msg_content = translate_jp_bracket_to_eng_bracket(cur_msg_content)
+    # check message has ( ) wrap
+    if not( "(" in cur_msg_content and ")" in cur_msg_content and cur_msg_content.find("(") < cur_msg_content.find(")") ):
+        await msg.add_reaction(str("❌"))
+        await msg.channel.send(f"しりとりの言葉は**ひらがな**か**カタカナ**を`()`に入れてね:exclamation:\n例入力: `歌う(うたう)`")
+        return
+    # extract hiragana word from cur_msg_content
+    cur_msg_content = find_string_between_bracket(cur_msg_content)
     shiritori_data = await read_json("shiritori")
     # last message
     last_word = shiritori_data["last_message"]
@@ -166,8 +195,6 @@ async def shiritori_on_message(msg:discord.Message):
     # check small case ending
     last_char = trans_dict[last_char] if last_char in trans_dict else last_char
 
-    # current message
-    cur_msg_content = msg.content
     # strip special characters from msg
     stripped_cur_msg_content = strip_special_chars(cur_msg_content)
     if stripped_cur_msg_content[-1] != "ん" and stripped_cur_msg_content[0] == last_char and stripped_cur_msg_content not in shiritori_data["history"]:
