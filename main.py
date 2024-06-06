@@ -17,7 +17,14 @@ async def load_extensions():
         print(f"Loaded extension cogs.{ext}")
 
 # CHANNEL ID
-TEXT_CHANNEL_ID = 1247839269125488650
+SHIRITORI_CHANNEL_ID = 1247839269125488650
+MESHITERO_CHANNEL_ID = 1248150136656232479
+DOUBUTSU_CHANNEL_ID = 1248150177743896607
+ALL_SPECIAL_CHANNEL_ID = [
+    SHIRITORI_CHANNEL_ID,
+    MESHITERO_CHANNEL_ID,
+    DOUBUTSU_CHANNEL_ID
+    ]
 
 # LOGGING
 handler = logging.FileHandler(filename='discord.log', encoding='utf-8', mode='w')
@@ -51,17 +58,21 @@ async def on_ready():
     print(f'\n\nLogged in as: {bot.user.name} - {bot.user.id}\nVersion: {discord.__version__}\n')
 
     # SHIRITORI INIT
-    await shiritori_on_ready(bot=bot, TEXT_CHANNEL_ID=TEXT_CHANNEL_ID)
+    await shiritori_on_ready(bot=bot, TEXT_CHANNEL_ID=SHIRITORI_CHANNEL_ID)
 
 # on message send in specific channel
 @bot.event
 async def on_message(msg:discord.Message):
     # only activate on designated text channel id
-    if msg.channel.id == TEXT_CHANNEL_ID and msg.author.name != bot.user.name:
+    if msg.channel.id == SHIRITORI_CHANNEL_ID and msg.author.name != bot.user.name:
         await shiritori_on_message(msg=msg)
+
+    # doubutsu & meshitero img
+    if msg.channel.id in (DOUBUTSU_CHANNEL_ID, MESHITERO_CHANNEL_ID) and msg.author.name != bot.user.name:
+        await on_message_image_upload_daily(msg=msg, channel=msg.channel.id)
             
     # if command is else where, proceed
-    elif msg.channel.id != TEXT_CHANNEL_ID:
+    elif msg.channel.id not in ALL_SPECIAL_CHANNEL_ID:
         await bot.process_commands(msg)
 
 

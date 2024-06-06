@@ -143,7 +143,6 @@ async def shiritori_on_ready(bot:commands.Bot, TEXT_CHANNEL_ID:int):
         # check for last message which doesn't end in ん and is all japanese
         messages_in_bracket = [[find_string_between_bracket(translate_jp_bracket_to_eng_bracket(n.content)),n] for n in messages_w_bracket]
         for msg_str,msg in messages_in_bracket:
-            print(msg_str)
             # strip special chars
             msg_str = strip_special_chars(msg_str)
             # katakana2hiragana
@@ -152,6 +151,7 @@ async def shiritori_on_ready(bot:commands.Bot, TEXT_CHANNEL_ID:int):
             jp_chars = await find_japanese_from_str(msg_str)
             if len(jp_chars) > 0 and len(jp_chars) == len(msg_str) and msg_str[-1] != "ん":
                 break
+        print(msg_str)
         update_json("shiritori", {"last_message":msg_str, "user":msg.author.name, "history": [n.content for n in messages]})
     print(f"loaded all msg in #{text_channel}. Load time: {round(time.time()-t,3)}s")
 
@@ -185,6 +185,9 @@ async def shiritori_on_message(msg:discord.Message):
         return
     # extract hiragana word from cur_msg_content
     cur_msg_content = find_string_between_bracket(cur_msg_content)
+    # convert to hiragana
+    cur_msg_content = jaconv.kata2hira(cur_msg_content)
+
     shiritori_data = await read_json("shiritori")
     # last message
     last_word = shiritori_data["last_message"]
@@ -197,7 +200,17 @@ async def shiritori_on_message(msg:discord.Message):
 
     # strip special characters from msg
     stripped_cur_msg_content = strip_special_chars(cur_msg_content)
-    if stripped_cur_msg_content[-1] != "ん" and stripped_cur_msg_content[0] == last_char and stripped_cur_msg_content not in shiritori_data["history"]:
+    # check non duplicate
+    if stripped_cur_msg_content in shiritori_data["history"]:
+        await msg.add_reaction(str("❌"))
+        await msg.channel.send(f"その言葉はもう使われたよ:exclamation:")
+        return
+    # check ending valid
+    if stripped_cur_msg_content[-1] == "ん":
+        await msg.add_reaction(str("❌"))
+        await msg.channel.send(f"`ん`だと終わってしまう、、、:exclamation:")
+        return
+    if  stripped_cur_msg_content[0] == last_char:
         update_json("shiritori",{
             "last_message":stripped_cur_msg_content,
             "user":msg.author.name, 
@@ -209,6 +222,9 @@ async def shiritori_on_message(msg:discord.Message):
         await msg.add_reaction(str("❌"))
         await msg.channel.send(f"現在の言葉は`{shiritori_data['last_message']}`です:exclamation:")
 
+async def on_message_image_upload_daily(msg:discord.Message, channel:discord.channel):
+    # check message is text
+    pass
 
 # JSON ENCODER / DECODER
 
