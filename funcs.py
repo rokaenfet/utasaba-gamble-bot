@@ -151,7 +151,6 @@ async def shiritori_on_ready(bot:commands.Bot, TEXT_CHANNEL_ID:int):
             jp_chars = await find_japanese_from_str(msg_str)
             if len(jp_chars) > 0 and len(jp_chars) == len(msg_str) and msg_str[-1] != "ん":
                 break
-        print(msg_str)
         update_json("shiritori", {"last_message":msg_str, "user":msg.author.name, "history": [n.content for n in messages]})
     print(f"loaded all msg in #{text_channel}. Load time: {round(time.time()-t,3)}s")
 
@@ -222,9 +221,17 @@ async def shiritori_on_message(msg:discord.Message):
         await msg.add_reaction(str("❌"))
         await msg.channel.send(f"現在の言葉は`{shiritori_data['last_message']}`です:exclamation:")
 
-async def on_message_image_upload_daily(msg:discord.Message, channel:discord.channel):
-    # check message is text
-    pass
+async def on_message_image_upload_daily(msg:discord.Message):
+    # channel
+    channel = msg.channel
+    # user
+    user_name = msg.author.name
+    # check msg has img attachment
+    attachments = msg.attachments
+    if len(attachments) > 0:
+        # get relevent image daily reward channel's data
+        data = await read_json("image_daily")[channel.id]
+        user_data = data["users"]
 
 # JSON ENCODER / DECODER
 

@@ -69,11 +69,11 @@ async def on_message(msg:discord.Message):
 
     # doubutsu & meshitero img
     if msg.channel.id in (DOUBUTSU_CHANNEL_ID, MESHITERO_CHANNEL_ID) and msg.author.name != bot.user.name:
-        await on_message_image_upload_daily(msg=msg, channel=msg.channel.id)
+        await on_message_image_upload_daily(msg=msg)
             
     # if command is else where, proceed
     elif msg.channel.id not in ALL_SPECIAL_CHANNEL_ID:
-        await bot.process_commands(msg)
+        await bot.process_commands(msg=msg)
 
 
 # COMMAND
