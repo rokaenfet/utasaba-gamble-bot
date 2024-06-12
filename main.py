@@ -33,9 +33,6 @@ handler = logging.FileHandler(filename='discord.log', encoding='utf-8', mode='w'
 midgame_rps_users = set()
 midbet_users = set()
 
-# EXTERNAL FILES
-# gamble_data = await read_json("gamble")
-
 # LOAD TOKEN KEY
 load_dotenv("token.env")
 DISCORD_TOKEN = os.environ.get("DISCORD_TOKEN")
