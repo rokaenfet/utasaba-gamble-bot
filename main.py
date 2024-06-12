@@ -34,7 +34,7 @@ midgame_rps_users = set()
 midbet_users = set()
 
 # EXTERNAL FILES
-gamble_data = read_json("gamble")
+# gamble_data = await read_json("gamble")
 
 # LOAD TOKEN KEY
 load_dotenv("token.env")
