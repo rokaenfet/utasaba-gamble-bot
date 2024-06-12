@@ -73,7 +73,7 @@ async def on_message(msg:discord.Message):
             
     # if command is else where, proceed
     elif msg.channel.id not in ALL_SPECIAL_CHANNEL_ID:
-        await bot.process_commands(msg=msg)
+        await bot.process_commands(msg)
 
 
 # COMMAND
