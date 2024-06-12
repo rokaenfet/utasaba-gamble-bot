@@ -33,9 +33,6 @@ handler = logging.FileHandler(filename='discord.log', encoding='utf-8', mode='w'
 midgame_rps_users = set()
 midbet_users = set()
 
-# EXTERNAL FILES
-gamble_data = read_json("gamble")
-
 # LOAD TOKEN KEY
 load_dotenv("token.env")
 DISCORD_TOKEN = os.environ.get("DISCORD_TOKEN")
@@ -73,7 +70,7 @@ async def on_message(msg:discord.Message):
             
     # if command is else where, proceed
     elif msg.channel.id not in ALL_SPECIAL_CHANNEL_ID:
-        await bot.process_commands(msg=msg)
+        await bot.process_commands(msg)
 
 
 # COMMAND

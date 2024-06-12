@@ -11,6 +11,7 @@ C:.
 │   main.py
 │   README.md
 │   token.env
+|   commands_argument.py
 │
 ├───cogs
 │       basic.py
@@ -19,7 +20,10 @@ C:.
 │       owner.py
 │
 ├───json
-        gamble.json
+|       gamble.json
+|       daily.json
+|       image_daily.json
+|       shirotori.json
 ```
 
 - `.gitignore`
