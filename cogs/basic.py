@@ -95,10 +95,11 @@ class BasicCog(commands.Cog):
                 }
             await update_json("daily", daily_data)
         else:
-            delta_time = user_last_daily_time+datetime.timedelta(days=1)
+            next_daily = (user_last_daily_time+datetime.timedelta(days=1)) - cur_time
+            hour, minute, second = next_daily.seconds//3600, (next_daily.seconds//60)%60, next_daily.seconds%60
             await interaction.response.send_message(embed = discord.Embed(
                 title=":x: デイリーはまだ受け取れないよ :x:",
-                description=f"{user.mention}の現在の**ストリークは**{streak}連です！\n次のデイリー報酬は{delta_time.time()}後に受け取れるよ:exclamation:",
+                description=f"{user.mention}の現在の**ストリークは**{streak}連です！\n次のデイリー報酬は{hour}:{minute}:{second}後に受け取れるよ:exclamation:",
                 color=discord.Color.teal()
             ))
 
