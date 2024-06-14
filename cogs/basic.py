@@ -103,5 +103,49 @@ class BasicCog(commands.Cog):
                 color=discord.Color.teal()
             ))
 
+    @app_commands.command(name=ALL_COMMANDS.basic.send_money.name, description=ALL_COMMANDS.basic.send_money.description)
+    @app_commands.describe(
+        user=ALL_COMMANDS.basic.send_money.user,
+        amount=ALL_COMMANDS.basic.send_money.amount
+    )
+    async def send_money(self, interaction:discord.Interaction, user:discord.Member, amount:str):
+        COMMISION = 0.05
+        # user
+        send_user = interaction.user
+        send_user_name = send_user.name
+        receive_user = user
+        receive_user_name = receive_user.name
+        # data
+        data = await read_json("gamble")
+        # check if "amount" is all
+        if isinstance(amount, str):
+            if amount == "all":
+                amount = data[send_user_name]
+            else:
+                try:
+                    amount = int(amount)
+                except:
+                    await interaction.response.send_message(f":x: 数字か「all」を入力してくださいね")
+                    return
+        # check amount is legal
+        if 0 > amount:
+            await interaction.response.send_message(f":x: {send_user.mention}0以上の金額を入力してください")
+            return
+        if amount > data[send_user_name]:
+            await interaction.response.send_message(f":x: {send_user.mention}様の残高は{clean_money_display(data[send_user_name])}です。この残高以内の金額をしてしてください:exclamation:")
+            return
+        # transfer money
+        await update_bal_delta(-amount, send_user_name)
+        await update_bal_delta(int(amount*(1-COMMISION)), receive_user_name)
+        # response
+        await interaction.response.send_message(embed=discord.Embed(
+            title=":ballot_box_with_check:送金完了:exclamation:",
+            description=f"{send_user.mention}は{receive_user.mention}に{clean_money_display(int(amount-amount*COMMISION))}送金しました。\n手数料は{clean_money_display(int(amount*COMMISION))}です",
+            color=discord.Color.blue()
+        ))
+
+        
+
+
 async def setup(bot):
     await bot.add_cog(BasicCog(bot), guilds=[discord.Object(id=get_guild_id())])

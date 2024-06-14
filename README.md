@@ -52,7 +52,7 @@ DISCORD_TOKEN=[insert token]
 - [ ] Basic
   - [x] info
   - [x] bal
-  - [ ] send money
+  - [x] send money
   - [ ] simple interactions
     - [ ] e.g. slap
   - [ ] daily trivia
