@@ -174,6 +174,8 @@ class GambleCog(commands.Cog):
                 )
             await interaction.followup.send(embed = response)
 
+<<<<<<< HEAD
+=======
     
     # async def blackjack(self, interaction:discord.Interaction, bet_amount:str, opponent:discord.Member = None): 
     #     bet_amount_check_response, bet_amount = await self.check_bet_amount(
