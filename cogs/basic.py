@@ -1,8 +1,9 @@
 import discord
-import os
 import time
-import typing
+import requests
+import random
 from funcs import *
+from get_gifs import Gifs
 from discord.ext import commands
 from discord import app_commands
 from commands_argument import get_all_commands
@@ -13,13 +14,13 @@ class BasicCog(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.DAILY_REWARD = 1000
+        # load gif
+        self.gif = Gifs()
+        self.gif.load_gifs()
         
     @commands.Cog.listener()
     async def on_ready(self):
-        t = time.time()
-        # print(f'Loading : cogs.{os.path.basename(__file__).replace(".py","")}')
-        # await self.bot.tree.sync(guild=discord.Object(get_guild_id()))
-        # print(f'Successfully loaded : cogs.{os.path.basename(__file__).replace(".py","")} in {round(time.time()-t,3)}s')
+        pass
 
     @app_commands.command(name=ALL_COMMANDS.basic.info.name, description=ALL_COMMANDS.basic.info.description)
     async def info(self, interaction:discord.Interaction):
@@ -144,8 +145,46 @@ class BasicCog(commands.Cog):
             color=discord.Color.blue()
         ))
 
-        
+    @app_commands.command(name=ALL_COMMANDS.basic.slap.name, description=ALL_COMMANDS.basic.slap.description)
+    @app_commands.describe(
+        user=ALL_COMMANDS.basic.slap.user
+    )
+    async def slap(self, interaction:discord.Interaction, user:discord.Member):
+        # If user A slaps B. quantity of slaps is accessed via read_json("slap_interaction.json")[A][B]
+        # user
+        send_user = interaction.user
+        send_user_name = send_user.name
+        receive_user = user
+        receive_user_name = receive_user.name
+        # data
+        json_f = "slap_interaction"
+        data = await read_json(json_f)
+        # check send_user has ever interacted
+        if send_user_name not in data:
+            data[send_user_name] = {}
+        # check receive_user has been interacted by send_user
+        if receive_user_name not in data[send_user_name]:
+            data[send_user_name][receive_user_name] = 0
 
+        # select gif
+        slap_url = random.choice(self.gif.slap_gifs)['images']['original']['url']
+
+        # slap
+        data[send_user_name][receive_user_name] += 1
+        update_json(json_f, data)
+        embed = discord.Embed(
+            title=":raised_hand:ビ・ン・タ:raised_back_of_hand:",
+            description=f"{send_user.mention}は{receive_user.mention}を**{data[send_user_name][receive_user_name]}回**ビンタしました:exclamation:",
+            color=discord.Color.purple()
+        )
+        embed.set_image(url=slap_url)
+        await interaction.response.send_message(embed=embed)
+
+    @app_commands.command(name=ALL_COMMANDS.basic.reload_gif.name, description=ALL_COMMANDS.basic.reload_gif.description)
+    async def reload_gif(self, interaction:discord.Interaction):
+        t = time.time()
+        self.gif.load_gifs()
+        await interaction.response.send_message(f"Reloaded gifs in {round(time.time()-t,3)}s")
 
 async def setup(bot):
     await bot.add_cog(BasicCog(bot), guilds=[discord.Object(id=get_guild_id())])

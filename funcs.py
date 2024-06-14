@@ -12,6 +12,7 @@ import jaconv
 from discord.ext import commands
 from dotenv import load_dotenv
 from pretty_help import PrettyHelp
+from dotenv import load_dotenv
 
 # FUNC
 
@@ -80,6 +81,14 @@ def translate_jp_bracket_to_eng_bracket(s:str):
         "）":")"
     }
     return "".join([n if n not in bracket_trans_dict else bracket_trans_dict[n] for n in s])
+
+def load_bot_token():
+    load_dotenv("token.env")
+    return os.environ.get("DISCORD_TOKEN")
+
+def load_giphy_token():
+    load_dotenv("token.env")
+    return os.environ.get("GIPHY_KEY")
 
 
 
@@ -153,7 +162,6 @@ async def shiritori_on_ready(bot:commands.Bot, TEXT_CHANNEL_ID:int):
                 break
         update_json("shiritori", {"last_message":msg_str, "user":msg.author.name, "history": [n.content for n in messages]})
     print(f"loaded all msg in #{text_channel}. Load time: {round(time.time()-t,3)}s")
-
 
 # ON_MESSAGE_SEND
 

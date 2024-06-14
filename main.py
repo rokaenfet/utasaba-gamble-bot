@@ -6,7 +6,6 @@ import logging
 import schedule
 import re
 from discord.ext import commands
-from dotenv import load_dotenv
 from pretty_help import PrettyHelp
 
 from funcs import *
@@ -34,8 +33,7 @@ midgame_rps_users = set()
 midbet_users = set()
 
 # LOAD TOKEN KEY
-load_dotenv("token.env")
-DISCORD_TOKEN = os.environ.get("DISCORD_TOKEN")
+DISCORD_TOKEN = load_bot_token()
 
 # VERBOSITY
 VERBOSE = True

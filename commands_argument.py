@@ -33,7 +33,9 @@ class CommandParams():
                 "info":["display various information", {}],
                 "avatar":["Get user avatar", {"member":"@[ユーザー名]"}],
                 "daily":["１日一回のデイリー報酬をもらうコマンド", {}],
-                "send_money":["選んだ相手にお金を送ろう！", {"user":"お金を送りたいユーザー名", "amount":"送る金額か「all」で全額送る"}]
+                "send_money":["選んだ相手にお金を送ろう！", {"user":"お金を送りたいユーザー名", "amount":"送る金額か「all」で全額送る"}],
+                "slap":["ビンタァァァァァ！！！",{"user":"誰をぉぉぉ、ビンタァァァ、するんだぁぁいぃぃ？！"}],
+                "reload_gif":["reload gifs from GIPHY",{}]
             }
         )
         
