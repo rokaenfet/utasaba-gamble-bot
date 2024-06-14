@@ -35,6 +35,7 @@ C:.
 ```
 # .env
 DISCORD_TOKEN=[insert token]
+GIPHY_KEY=[insert api key]
 ```
 - `funcs.py`
   - general functions folder. Use functions via `from [path]/funcs.py import *`
@@ -53,8 +54,8 @@ DISCORD_TOKEN=[insert token]
   - [x] info
   - [x] bal
   - [x] send money
-  - [ ] simple interactions
-    - [ ] e.g. slap
+  - [x] simple interactions
+    - [x] e.g. slap
   - [ ] daily trivia
 - [ ] Money
   - [ ] Gamble
