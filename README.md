@@ -77,13 +77,13 @@ DISCORD_TOKEN=[insert token]
   - [ ] Grant Money
     - [ ] Via being in VC for over some duration
       - [ ] Move users afk in VC for extended period of time with no activity
-    - [ ] Posting an image of food in a specific chat daily "飯テロ"
+    - [x] Posting an image of food in a specific chat daily "飯テロ"
       - [ ] Only reward if image is deemed a food img by AI
-    - [ ] Posting an image of animals in a specific chat daily "動物"
+    - [x] Posting an image of animals in a specific chat daily "動物"
       - [ ] Only reward if image is deemed a food img by AI
     - [x] reward small amount of money if valid しりとり answer
 - [ ] member management
-  - [ ] checkしりとりvalidity
+  - [x] checkしりとりvalidity
     - [x] finishing in ん?
     - [x] ちゃんと「尻」「取り」してる？
     - [x] mapping between カタカナ & ひらがな
