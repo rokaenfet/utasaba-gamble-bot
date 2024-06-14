@@ -222,25 +222,58 @@ async def shiritori_on_message(msg:discord.Message):
         await msg.channel.send(f"現在の言葉は`{shiritori_data['last_message']}`です:exclamation:")
 
 async def on_message_image_upload_daily(msg:discord.Message):
+    # json file name
+    json_f = "image_daily"
     # channel
     channel = msg.channel
+    channel_id = str(channel.id)
     # user
     user_name = msg.author.name
     # check msg has img attachment
     attachments = msg.attachments
     if len(attachments) > 0:
         # get relevent image daily reward channel's data
-        data = await read_json("image_daily")[channel.id]
-        user_data = data["users"]
+        data = await read_json(json_f)
 
-# JSON ENCODER / DECODER
+        # daily prep
+        cur_time = datetime.datetime.now(datetime.timezone.utc)
+        fortnite_time = cur_time - datetime.timedelta(days=2)
 
-# class DateTimeEncoder(json.JSONEncoder):
-#     def default(self, obj):
-#         if isinstance(obj, (datetime.date, datetime.datetime)):
-#             return obj.isoformat()
-            
-# def DecodeDateTime(empDict):
-#    if 'joindate' in empDict:
-#       empDict["joindate"] = dateutil.parser.parse(empDict["joindate"])
-#       return empDict
+        # check for new users in image_daily.json[channel.id]
+        if user_name not in data[channel_id]["users"]:
+            data[channel_id]["users"][user_name] = {
+                "streak":0,
+                "last_daily": encode_datetime_timestamp(fortnite_time)
+            }
+        update_json(json_f, data)
+
+        user_data = data[channel_id]["users"][user_name]
+
+        # if its been more than a day, allow daily
+        user_last_daily_time = decode_datetime_timestamp(user_data["last_daily"])
+        delta_time = cur_time - user_last_daily_time
+        can_get_daily = delta_time.days >= 1
+
+        # reset streak if 2 days has passed
+        if delta_time.days >= 2:
+            streak = 0
+        else:
+            streak = user_data["streak"]
+        
+        # responses
+        if can_get_daily:
+            # add streak
+            streak += 1
+            # add money
+            await update_bal_delta(amount = 1000, user = user_name)
+            await msg.add_reaction(str("✅"))
+            # update json w new streak and timestamp
+            data[channel_id]["users"][user_name] = {
+                "streak":streak, 
+                "last_daily": encode_datetime_timestamp(cur_time)
+                }
+            await update_json(json_f, data)
+        else:
+            # add less money
+            await update_bal_delta(amount = 100, user = user_name)
+            await msg.add_reaction(str("🔥"))
