@@ -3,9 +3,11 @@ import os
 import time
 import typing
 from funcs import *
-from commands_argument import CommandArg
 from discord.ext import commands
 from discord import app_commands
+from commands_argument import get_all_commands
+
+ALL_COMMANDS = get_all_commands()
 
 class BasicCog(commands.Cog):
     def __init__(self, bot):
@@ -19,7 +21,7 @@ class BasicCog(commands.Cog):
         # await self.bot.tree.sync(guild=discord.Object(get_guild_id()))
         # print(f'Successfully loaded : cogs.{os.path.basename(__file__).replace(".py","")} in {round(time.time()-t,3)}s')
 
-    @app_commands.command(name="info", description="display various information")
+    @app_commands.command(name=ALL_COMMANDS.basic.info.name, description=ALL_COMMANDS.basic.info.description)
     async def info(self, interaction:discord.Interaction):
         try:
             embed = discord.Embed(title=":information_source: Info", color=discord.Color.gold())
@@ -32,14 +34,14 @@ class BasicCog(commands.Cog):
         except Exception as e:
             print(f"Error: {e}")
 
-    @app_commands.command(name="avatar", description="Get user avatar")
+    @app_commands.command(name=ALL_COMMANDS.basic.avatar.name, description=ALL_COMMANDS.basic.avatar.description)
     @app_commands.describe(
-        member="@[ユーザー名]"
+        member=ALL_COMMANDS.basic.avatar.member
     )
     async def avatar(self, interaction:discord.Interaction, member:discord.Member):
         await interaction.response.send_message(member.display_avatar)
 
-    @app_commands.command(name="daily", description="１日一回のデイリー報酬をもらうコマンド")
+    @app_commands.command(name=ALL_COMMANDS.basic.daily.name, description=ALL_COMMANDS.basic.daily.description)
     async def daily(self, interaction:discord.Interaction):
         # user
         user = interaction.user

@@ -1,10 +1,12 @@
 from discord.ext import commands
 from discord import app_commands
 from funcs import *
-from commands_argument import CommandArg
 import os
 import time
 import datetime
+from commands_argument import get_all_commands
+
+ALL_COMMANDS = get_all_commands()
 
 class OwnerCog(commands.Cog):
     def __init__(self, bot):
@@ -17,10 +19,10 @@ class OwnerCog(commands.Cog):
         # await self.bot.tree.sync(guild=discord.Object(get_guild_id()))
         # print(f'Successfully loaded : cogs.{os.path.basename(__file__).replace(".py","")} in {round(time.time()-t,3)}s')
 
-    @app_commands.command(name="admin_change_money", description="ADMIN: change bal of user")
+    @app_commands.command(name=ALL_COMMANDS.owner.admin_change_money.name, description=ALL_COMMANDS.owner.admin_change_money.description)
     @app_commands.describe(
-        user="残高を変更する対象の@[ユーザー名]",
-        money="変更後の残高となる金額"
+        user=ALL_COMMANDS.owner.admin_change_money.user,
+        money=ALL_COMMANDS.owner.admin_change_money.money
     )
     @commands.is_owner()
     async def admin_change_money(self, interaction:discord.Interaction, user:discord.Member = None, money:int = None):
@@ -42,7 +44,7 @@ class OwnerCog(commands.Cog):
             color=discord.Color.og_blurple())
         await interaction.response.send_message(embed=embed)
 
-    @app_commands.command(name="reload", description="update cogs/*** extensions")
+    @app_commands.command(name=ALL_COMMANDS.owner.reload.name, description=ALL_COMMANDS.owner.reload.description)
     @commands.is_owner()
     async def reload(self, interaction:discord.Interaction):
         extensions = get_extensions()
@@ -70,7 +72,10 @@ class OwnerCog(commands.Cog):
                 value=f'LOAD {"SUCCESS" if els else "FAILED"}: {load_duration}s', inline=False)
         await interaction.followup.send(embed=embed)
 
-    @app_commands.command(name="reset_daily", description="reset the daily for a specific user")
+    @app_commands.command(name=ALL_COMMANDS.owner.reset_daily.name, description=ALL_COMMANDS.owner.reset_daily.description)
+    @app_commands.describe(
+        user=ALL_COMMANDS.owner.reset_daily.user
+    )
     @commands.is_owner()
     async def reset_daily(self, interaction:discord.Interaction, user:discord.Member = None):
         # parse user arg
@@ -90,7 +95,11 @@ class OwnerCog(commands.Cog):
         update_json("daily", daily_data)
         await interaction.response.send_message(f"{user.mention} can now invoke `/daily` again")
 
-    @app_commands.command(name="get_channel_text", description="get all text in a given text channel")
+    @app_commands.command(name=ALL_COMMANDS.owner.get_channel_text.name, description=ALL_COMMANDS.owner.get_channel_text.description)
+    @app_commands.describe(
+        channel=ALL_COMMANDS.owner.get_channel_text.channel,
+        history=ALL_COMMANDS.owner.get_channel_text.history
+    )
     @commands.is_owner()
     async def get_channel_text(self, interaction:discord.Interaction, channel:discord.TextChannel, history:int=10):
         def format_rep(arr):
@@ -105,10 +114,10 @@ class OwnerCog(commands.Cog):
         except:
             await interaction.response.send_message(f"history msg is too long")
 
-    @app_commands.command(name="purge", description="remove some amount of messages")
+    @app_commands.command(name=ALL_COMMANDS.owner.purge.name, description=ALL_COMMANDS.owner.purge.description)
     @app_commands.describe(
-        channel ="channel to remove texts from",
-        number  ="quantity of messages to remove"
+        channel = ALL_COMMANDS.owner.purge.channel,
+        number  = ALL_COMMANDS.owner.purge.number
     )
     @commands.is_owner()
     async def purge(self, interaction:discord.Interaction, channel:discord.TextChannel, number:int):
@@ -116,12 +125,6 @@ class OwnerCog(commands.Cog):
         await interaction.response.defer()
         purged = await channel.purge(limit=min(num_messages, number))
         await interaction.followup.send(f"{min(num_messages,number)} messages has been purged from {channel.mention}")
-
-
-    @commands.command()
-    @commands.is_owner()
-    async def shutdown(self, ctx):
-        pass
 
 async def setup(bot):
     await bot.add_cog(OwnerCog(bot), guilds=[discord.Object(id=get_guild_id())])

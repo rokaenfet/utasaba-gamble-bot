@@ -1,14 +1,15 @@
 from discord.ext import commands
 from discord import app_commands
 from funcs import *
-from commands_argument import CommandArg
 import typing
 import os
 import time
 import asyncio
 import random
 from random import shuffle
+from commands_argument import get_all_commands
 
+ALL_COMMANDS = get_all_commands()
 
 class GambleCog(commands.Cog):
     def __init__(self, bot):
@@ -33,7 +34,10 @@ class GambleCog(commands.Cog):
         # await self.bot.tree.sync(guild=discord.Object(get_guild_id()))
         # print(f'Successfully loaded : cogs.{os.path.basename(__file__).replace(".py","")} in {round(time.time()-t,3)}s')
 
-    @app_commands.command(name="bal", description="show current balance of user")
+    @app_commands.command(name=ALL_COMMANDS.gamble.bal.name, description=ALL_COMMANDS.gamble.bal.description)
+    @app_commands.describe(
+        user=ALL_COMMANDS.gamble.bal.user
+    )
     async def bal(self, interaction:discord.Interaction, user:discord.Member = None):
         """
         !bal
@@ -52,10 +56,10 @@ class GambleCog(commands.Cog):
         embed = discord.Embed(title=f":euro: 残高 :dollar:", description=f"{user.mention}の残高\n{clean_money_display(gamble_data[user_name])}", color=discord.Color.magenta())
         await interaction.response.send_message(embed=embed)
 
-    @app_commands.command(name="flip", description="コインの表裏のギャンブル")
+    @app_commands.command(name=ALL_COMMANDS.gamble.flip.name, description=ALL_COMMANDS.gamble.flip.description)
     @app_commands.describe(
-        bet_amount=CommandArg.ALL_COMMAND_ARGUMENT_DESCRIPTIONS["bet_amount"],
-        side=CommandArg.ALL_COMMAND_ARGUMENT_DESCRIPTIONS["side"]
+        bet_amount=ALL_COMMANDS.gamble.flip.bet_amount,
+        side=ALL_COMMANDS.gamble.flip.side
     )
     async def flip(self, interaction:discord.Interaction, bet_amount:str, side:str = "表"):
         # user in qs
@@ -93,12 +97,11 @@ class GambleCog(commands.Cog):
         await interaction.followup.send(embed=response)
 
 
-    @app_commands.command(name="rps", description="ギャンブルジャンケン")
+    @app_commands.command(name=ALL_COMMANDS.gamble.rps.name, description=ALL_COMMANDS.gamble.rps.description)
     @app_commands.describe(
-        bet_amount=CommandArg.ALL_COMMAND_ARGUMENT_DESCRIPTIONS["bet_amount"],
-        opponent=CommandArg.ALL_COMMAND_ARGUMENT_DESCRIPTIONS["opponent"]
+        bet_amount=ALL_COMMANDS.gamble.rps.bet_amount
     )
-    async def rps(self, interaction:discord.Interaction, bet_amount:str, opponent:discord.Member = None):
+    async def rps(self, interaction:discord.Interaction, bet_amount:str):
         """
         TO-DO
         handle when no input for bet_amount
@@ -121,20 +124,6 @@ class GambleCog(commands.Cog):
         else:
             print(f"invalid return of {type(bet_amount_check_response)}")
             return
-                
-        # opponent in question
-        if opponent is None:
-            opponent = self.bot.user
-            opponent_is_bot = True
-        else:
-            opponent_is_bot = False
-        opponent_name = opponent.name
-        # print(f"user:{user}, {user_name}\nopponent:{opponent},{opponent_name}")
-
-        # TEMP!!! OPPONENT ALWAYS BOT
-        opponent_is_bot = True
-        opponent_name = self.bot.user
-        opponent_name = opponent.name
 
         # load rps
         rps_dict = {
@@ -186,87 +175,84 @@ class GambleCog(commands.Cog):
             await interaction.followup.send(embed = response)
 
     
-    async def blackjack(self, interaction:discord.Interaction, bet_amount:str, opponent:discord.Member = None): 
-        bet_amount_check_response, bet_amount = await self.check_bet_amount(
-            bet_amount=bet_amount, 
-            user=user, 
-            game_name="gamble"
-            )
+    # async def blackjack(self, interaction:discord.Interaction, bet_amount:str, opponent:discord.Member = None): 
+    #     bet_amount_check_response, bet_amount = await self.check_bet_amount(
+    #         bet_amount=bet_amount, 
+    #         user=user, 
+    #         game_name="gamble"
+    #         )
         
-        cards = {"A" : 1, "2" : 2, "3" : 3, "4" : 4, "5" : 5, "6" : 6, "7" : 7, "8" : 8, "9" : 9, "10" : 10, "J" : 10, "Q" : 10, "K" : 10}
-        deck = []
+    #     cards = {"A" : 1, "2" : 2, "3" : 3, "4" : 4, "5" : 5, "6" : 6, "7" : 7, "8" : 8, "9" : 9, "10" : 10, "J" : 10, "Q" : 10, "K" : 10}
+    #     deck = []
 
-        def genDeck():
-            deck = []
-            # Generate a deck of 6 packs
-            for _ in range(6):
-                pack = []
-                # Generate each pack
-                for i in range(4):
-                    pack += cards.keys()
-                    shuffle(pack)
-                deck += pack
-                shuffle(deck)
-            return deck
+    #     def genDeck():
+    #         deck = []
+    #         # Generate a deck of 6 packs
+    #         for _ in range(6):
+    #             pack = []
+    #             # Generate each pack
+    #             for i in range(4):
+    #                 pack += cards.keys()
+    #                 shuffle(pack)
+    #             deck += pack
+    #             shuffle(deck)
+    #         return deck
         
-        def deal(): 
-            player_hand.append(deck.pop())
-            dealer_hand.append(deck.pop())
+    #     def deal(): 
+    #         player_hand.append(deck.pop())
+    #         dealer_hand.append(deck.pop())
 
             
-        def sumHand(hand): 
-            hand_sum = 0
-            aces = 0
-            for i in hand:
-                if i != 'A': 
-                    hand_sum += cards[i]
-                else: 
-                    aces += 1
-            for i in range(aces): 
-                if hand_sum + 11 <= 21: 
-                    hand_sum += 11
-                else: 
-                    hand_sum += 1
-            return hand_sum
+    #     def sumHand(hand): 
+    #         hand_sum = 0
+    #         aces = 0
+    #         for i in hand:
+    #             if i != 'A': 
+    #                 hand_sum += cards[i]
+    #             else: 
+    #                 aces += 1
+    #         for i in range(aces): 
+    #             if hand_sum + 11 <= 21: 
+    #                 hand_sum += 11
+    #             else: 
+    #                 hand_sum += 1
+    #         return hand_sum
         
-        winner = None
-        player_hand = []
-        dealer_hand = []
-        player_value = 0
-        dealer_value = 0
-        for _ in range(2): 
-            player_hand.append(deck.pop())
-            dealer_hand.append(deck.pop())
-        player_value = sumHand(player_hand)
-        dealer_value = sumHand(player_hand)
-        if player_hand == 21 and dealer_hand != 21: 
-            winner = True
-        while winner is None: 
-            #TODO add rest of game, hitting and staying
-            try:
-                await interaction.followup.send(embed = discord.Embed(title= player_hand))
-                res = await self.bot.wait_for("message", check=check, timeout=10.0)
-                # check game end
+    #     winner = None
+    #     player_hand = []
+    #     dealer_hand = []
+    #     player_value = 0
+    #     dealer_value = 0
+    #     for _ in range(2): 
+    #         player_hand.append(deck.pop())
+    #         dealer_hand.append(deck.pop())
+    #     player_value = sumHand(player_hand)
+    #     dealer_value = sumHand(player_hand)
+    #     if player_hand == 21 and dealer_hand != 21: 
+    #         winner = True
+    #     while winner is None: 
+    #         #TODO add rest of game, hitting and staying
+    #         try:
+    #             await interaction.followup.send(embed = discord.Embed(title= player_hand))
+    #             res = await self.bot.wait_for("message", check=check, timeout=10.0)
+    #             # check game end
                 
-            except asyncio.TimeoutError:
-                await interaction.followup.send("もっと早く手をだして:exclamation:最初から :person_shrugging:")
-                await update_bal_delta(bet_amount, user_name)
-                return
-        if winner is not None:
-            win = winner == "player"
-            response = await self.display_win_loss_result(
-                win = win, 
-                bet_amount = bet_amount, 
-                user = user, 
-                gamble_name="BlackJack",
-                rates = self.GAMBLE_RATES["rps"]
-                )
-            await interaction.followup.send(embed = response)
+    #         except asyncio.TimeoutError:
+    #             await interaction.followup.send("もっと早く手をだして:exclamation:最初から :person_shrugging:")
+    #             await update_bal_delta(bet_amount, user_name)
+    #             return
+    #     if winner is not None:
+    #         win = winner == "player"
+    #         response = await self.display_win_loss_result(
+    #             win = win, 
+    #             bet_amount = bet_amount, 
+    #             user = user, 
+    #             gamble_name="BlackJack",
+    #             rates = self.GAMBLE_RATES["rps"]
+    #             )
+    #         await interaction.followup.send(embed = response)
             
-                
-
-    
-    @app_commands.command(name="reload_player_sets", description="remove players from in-game list")
+    @app_commands.command(name=ALL_COMMANDS.gamble.reload_player_sets.name, description=ALL_COMMANDS.gamble.reload_player_sets.description)
     @commands.is_owner()
     async def reload_player_sets(self, interaction:discord.Interaction):
         self.midbet_users = set()

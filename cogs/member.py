@@ -4,7 +4,9 @@ import time
 from discord.ext import commands
 from discord import app_commands
 from funcs import *
-from commands_argument import CommandArg
+from commands_argument import get_all_commands
+
+ALL_COMMANDS = get_all_commands()
 
 
 class MemberCog(commands.Cog):
@@ -18,7 +20,7 @@ class MemberCog(commands.Cog):
         # await self.bot.tree.sync(guild=discord.Object(get_guild_id()))
         # print(f'Successfully loaded : cogs.{os.path.basename(__file__).replace(".py","")} in {round(time.time()-t,3)}s')
 
-    @app_commands.command(name="shiritori", description="現在のしりとりの言葉を見る")
+    @app_commands.command(name=ALL_COMMANDS.member.shiritori.name, description=ALL_COMMANDS.member.shiritori.description)
     async def shiritori(self, interaction:discord.Interaction):
         shiritori = await read_json("shiritori")
         await interaction.response.send_message(f"現在のしりとりの尻言葉は`{shiritori['last_message']}`です")
