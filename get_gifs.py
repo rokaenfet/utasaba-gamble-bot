@@ -18,7 +18,6 @@ class Gifs():
         url = f"https://api.giphy.com/v1/gifs/search"
         # Make the GET request to the Giphy API
         try:
-            print("loading gif")
             response = requests.get(url, params=self.slap_gif_params)
             if response.status_code == 200:
                 data = response.json()

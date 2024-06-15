@@ -19,7 +19,8 @@ class GambleCog(commands.Cog):
         self.GAMBLE_RATES = {
             "rps":2.5,
             "flip":2,
-            "blackjack":2
+            "blackjack":2,
+            "russian_roulette":1.8
         }
         self.VERBOSE = False
 
@@ -257,6 +258,8 @@ class GambleCog(commands.Cog):
         bet_amount=ALL_COMMANDS.gamble.rl.bet_amount
     )
     async def rl(self, interaction:discord.Interaction, bet_amount:str):
+        # defer for slow response
+        await interaction.response.defer()
         # user in question
         user = interaction.user
         user_name = user.name
@@ -268,9 +271,9 @@ class GambleCog(commands.Cog):
             game_name="ロシアンルーレット"
             )
         if isinstance(bet_amount_check_response, str):
-            await interaction.response.send_message(bet_amount_check_response)
+            await interaction.followup.send(bet_amount_check_response)
         elif isinstance(bet_amount_check_response, discord.Embed):
-            await interaction.response.send_message(embed=bet_amount_check_response)
+            await interaction.followup.send(embed=bet_amount_check_response)
         else:
             print(f"invalid return of {type(bet_amount_check_response)}")
             return
@@ -289,31 +292,19 @@ class GambleCog(commands.Cog):
         game_id = interaction.channel_id
         games[game_id] = {'turns': 0, 'chamber': random.randint(1, 6)}
 
+        # res
+        res = ["セーフ:exclamation:", "バン:exclamation: YOU ARE DEAD:skull:"]
+
         async def button_callback(interaction: discord.Interaction):
-            game = games.get(game_id)
-            if game:
-                game['turns'] += 1
-                if game['turns'] == game['chamber']:
-                    result = "バン:exclamation: YOU ARE DEAD"
-                    del games[game_id]
-                    await interaction.response.send_message(f"{interaction.user.mention} {result}")
-                    return
-                elif game['turns'] >= 6:
-                    result = "セーフ! ゲーム終わり"
-                    del games[game_id]
-                    await interaction.response.send_message(f"{interaction.user.mention} {result}")
-                    return
-                else:
-                    result = "セーフ！もう一回スピン！"
-            else:
-                result = "ゲームは終了しました、または存在しません..."
-            
+            result = random.choice(res)
+            if res.index(result) == 0:
+                await update_bal_delta(bet_amount*self.GAMBLE_RATES["russian_roulette"], user_name)
             await interaction.response.send_message(f"{interaction.user.mention} {result}")
     
         button.callback = button_callback
         view.add_item(button)
         
-        await interaction.response.send_message(embed=embed, view=view)
+        await interaction.followup.send(embed=embed, view=view)
 
 
 async def setup(bot):

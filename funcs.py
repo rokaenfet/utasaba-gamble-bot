@@ -134,7 +134,7 @@ async def update_bal(amount:int, user:str):
     """
     gamble_data = await read_json("gamble")
     gamble_data = await check_user_in_gamble_data(gamble_data, user)
-    gamble_data[user] = amount
+    gamble_data[user] = int(amount)
     update_json("gamble", gamble_data)
 
 async def update_bal_delta(amount:int, user:str):
@@ -144,7 +144,7 @@ async def update_bal_delta(amount:int, user:str):
     """
     gamble_data = await read_json("gamble")
     gamble_data = await check_user_in_gamble_data(gamble_data, user)
-    gamble_data[user] += amount
+    gamble_data[user] += int(amount)
     update_json("gamble", gamble_data)
 
 # SHIRITORI
@@ -326,7 +326,6 @@ async def display_win_loss_result(win:bool, bet_amount:int, user:discord.Member,
 async def check_bet_amount(bet_amount:str, user:discord.Member, game_name:str):
     response = None
     user_name = user.name
-    bet_amount_response = None
 
     # check user's bal's existence
     gamble_data = await read_json("gamble")
@@ -340,7 +339,7 @@ async def check_bet_amount(bet_amount:str, user:discord.Member, game_name:str):
             bet_amount = gamble_data[user_name]
             response = discord.Embed(
                 title=f":money_with_wings:ALL-IN:exclamation:",
-                description=f"{user.mention}は{game_name}に**全額ベット**しました:bangbang: 賭け金={clean_money_display(bet_amount)}",
+                description=f"{user.mention}は{game_name}に**全額ベット**しました:bangbang: 賭け金 = **{clean_money_display(bet_amount)}**",
                 color=discord.Color.light_embed()
             )
             await update_bal(0, user_name)
@@ -361,7 +360,7 @@ async def check_bet_amount(bet_amount:str, user:discord.Member, game_name:str):
                 elif bet_amount == gamble_data[user_name]:
                     response = discord.Embed(
                         title=f":money_with_wings:{game_name} | ALL-IN:exclamation:",
-                        description=f"{user.mention}は{game_name}に**全額ベット**しました:bangbang: 賭け金は{clean_money_display(bet_amount)}",
+                        description=f"{user.mention}は**{game_name}**に**全額ベット**しました:bangbang: 賭け金は{clean_money_display(bet_amount)}",
                         color=discord.Color.light_embed()
                     )
                     await update_bal(0, user_name)
