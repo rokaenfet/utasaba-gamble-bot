@@ -23,10 +23,6 @@ class GambleCog(commands.Cog):
         }
         self.VERBOSE = False
 
-        self.image_urls = {
-            "rps":"https://i0.wp.com/www.vampiretools.com/wp-content/uploads/2018/09/psr.jpg?fit=908%2C490&ssl=1"
-        }
-
     @commands.Cog.listener()
     async def on_ready(self):
         t = time.time()
@@ -71,10 +67,10 @@ class GambleCog(commands.Cog):
             return
 
         # check bet_amount, and get reply message [str | embed] and bet_amout [int]
-        bet_amount_check_response, bet_amount = await self.check_bet_amount(
+        bet_amount_check_response, bet_amount = await check_bet_amount(
             bet_amount=bet_amount, 
             user=user, 
-            game_name="gamble"
+            game_name="コイントス"
             )
         if isinstance(bet_amount_check_response, str):
             await interaction.response.send_message(bet_amount_check_response)
@@ -87,7 +83,7 @@ class GambleCog(commands.Cog):
         # get win/loss
         win = random.choice((0,1)) == 0
         # get response
-        response = await self.display_win_loss_result(
+        response = await display_win_loss_result(
             win = win, 
             bet_amount = bet_amount, 
             user = user, 
@@ -112,10 +108,10 @@ class GambleCog(commands.Cog):
         user_name = user.name
 
         # check bet_amount, and get reply message [str | embed] and bet_amout [int]
-        bet_amount_check_response, bet_amount = await self.check_bet_amount(
+        bet_amount_check_response, bet_amount = await check_bet_amount(
             bet_amount=bet_amount, 
             user=user, 
-            game_name="gamble"
+            game_name="ジャンケン"
             )
         if isinstance(bet_amount_check_response, str):
             await interaction.response.send_message(bet_amount_check_response)
@@ -138,15 +134,12 @@ class GambleCog(commands.Cog):
         rps_first_round = True
         winner = None
         gamble_data = await read_json("gamble")
-        # get embeds
-        rps_init_embed = self.rps_init_embed()
-        rps_alt_embed = self.rps_alt_embed()
 
         while winner is None:
             if rps_first_round:
-                await interaction.followup.send(embed = rps_init_embed)
+                await interaction.followup.send(embed = rps_init_embed())
             else:
-                await interaction.followup.send(embed = rps_alt_embed)
+                await interaction.followup.send(embed = rps_alt_embed())
             try:
                 res = await self.bot.wait_for("message", check=check, timeout=10.0)
                 player_hand = res.content
@@ -165,7 +158,7 @@ class GambleCog(commands.Cog):
                 return
         if winner is not None:
             win = winner == "player"
-            response = await self.display_win_loss_result(
+            response = await display_win_loss_result(
                 win = win, 
                 bet_amount = bet_amount, 
                 user = user, 
@@ -175,7 +168,7 @@ class GambleCog(commands.Cog):
             await interaction.followup.send(embed = response)
     
     # async def blackjack(self, interaction:discord.Interaction, bet_amount:str, opponent:discord.Member = None): 
-    #     bet_amount_check_response, bet_amount = await self.check_bet_amount(
+    #     bet_amount_check_response, bet_amount = await check_bet_amount(
     #         bet_amount=bet_amount, 
     #         user=user, 
     #         game_name="gamble"
@@ -242,7 +235,7 @@ class GambleCog(commands.Cog):
     #             return
     #     if winner is not None:
     #         win = winner == "player"
-    #         response = await self.display_win_loss_result(
+    #         response = await display_win_loss_result(
     #             win = win, 
     #             bet_amount = bet_amount, 
     #             user = user, 
@@ -259,97 +252,69 @@ class GambleCog(commands.Cog):
         embed = discord.Embed(title="set_reset", description=f"In-Game sets reset complete :D", color=discord.Color.brand_green())
         await interaction.response.send_message(embed=embed)
 
-    async def display_win_loss_result(self, win:bool, bet_amount:int, user, gamble_name:str, rates:float):
+    @app_commands.command(name=ALL_COMMANDS.gamble.rl.name, description=ALL_COMMANDS.gamble.rl.description)
+    @app_commands.describe(
+        bet_amount=ALL_COMMANDS.gamble.rl.bet_amount
+    )
+    async def rl(self, interaction:discord.Interaction, bet_amount:str):
+        # user in question
+        user = interaction.user
         user_name = user.name
-        gamble_data = await read_json("gamble")
-        if win:
-            win_amount = int(bet_amount*rates)
-            await update_bal_delta(win_amount, user_name)
-            gamble_data = await read_json("gamble")
-            embed = discord.Embed(
-                title = f"{gamble_name}ギャンブル **YOU WIN**:bangbang: :crown:", 
-                description=f"{user.mention}は{clean_money_display(win_amount)}勝ちました！\n現在の残高は{clean_money_display(gamble_data[user_name])}です",
-                color=discord.Color.purple()
+
+        # check bet_amount, and get reply message [str | embed] and bet_amout [int]
+        bet_amount_check_response, bet_amount = await check_bet_amount(
+            bet_amount=bet_amount, 
+            user=user, 
+            game_name="ロシアンルーレット"
             )
+        if isinstance(bet_amount_check_response, str):
+            await interaction.response.send_message(bet_amount_check_response)
+        elif isinstance(bet_amount_check_response, discord.Embed):
+            await interaction.response.send_message(embed=bet_amount_check_response)
         else:
-            lose_amount = bet_amount
-            embed = discord.Embed(
-                title = f":regional_indicator_l: {gamble_name}ギャンブル **YOU LOSE**... :sob:", 
-                description=f"{user.mention}は{clean_money_display(lose_amount)}負けたよ、、、\n現在の残高は{clean_money_display(gamble_data[user_name])}です",
-                color=discord.Color.blue()
-            )
-        return embed
+            print(f"invalid return of {type(bet_amount_check_response)}")
+            return
+        
+        # rl embed
+        embed = discord.Embed(
+            title=":gun:ロシアンルーレット:bangbang:",
+            description="ボタンを押してルーレットを回そう:exclamation:",
+            color=discord.Color.dark_purple()
+        )
+        view = discord.ui.View()
+        button = discord.ui.Button(label="スピン", style=discord.ButtonStyle.primary)
 
-    async def check_bet_amount(self, bet_amount, user, game_name):
-        response = None
-        user_name = user.name
-        bet_amount_response = None
+        # games
+        games = dict()
+        game_id = interaction.channel_id
+        games[game_id] = {'turns': 0, 'chamber': random.randint(1, 6)}
 
-        # check user's bal's existence
-        gamble_data = await read_json("gamble")
-        # get data
-        gamble_data = await check_user_in_gamble_data(gamble_data, user_name)
-
-        # if bet_amount : str
-        if isinstance(bet_amount, str):
-            # is bet_amount == all in
-            if bet_amount.lower() in {"all","オール"}:
-                bet_amount = gamble_data[user_name]
-                response = discord.Embed(
-                    title=f":money_with_wings:ALL-IN:exclamation:",
-                    description=f"{user.mention}は{game_name}に**全額ベット**しました:bangbang: 賭け金={clean_money_display(bet_amount)}",
-                    color=discord.Color.light_embed()
-                )
-                await update_bal(0, user_name)
-            # if not all in
+        async def button_callback(interaction: discord.Interaction):
+            game = games.get(game_id)
+            if game:
+                game['turns'] += 1
+                if game['turns'] == game['chamber']:
+                    result = "バン:exclamation: YOU ARE DEAD"
+                    del games[game_id]
+                    await interaction.response.send_message(f"{interaction.user.mention} {result}")
+                    return
+                elif game['turns'] >= 6:
+                    result = "セーフ! ゲーム終わり"
+                    del games[game_id]
+                    await interaction.response.send_message(f"{interaction.user.mention} {result}")
+                    return
+                else:
+                    result = "セーフ！もう一回スピン！"
             else:
-                try:
-                    # bet_amount : str > int (check can it be turned to int)
-                    bet_amount = int(bet_amount)
-                    # if user have enough balance
-                    if bet_amount < gamble_data[user_name]:
-                        response = discord.Embed(
-                            title=f":money_with_wings:{game_name} | ギャンブル:money_with_wings:",
-                            description=f"{user.mention}は{game_name}に{clean_money_display(bet_amount)}賭けました",
-                            color=discord.Color.yellow()
-                        )
-                        await update_bal_delta(-bet_amount, user_name)
-                    # if its effectively an all in
-                    elif bet_amount == gamble_data[user_name]:
-                        response = discord.Embed(
-                            title=f":money_with_wings:{game_name} | ALL-IN:exclamation:",
-                            description=f"{user.mention}は{game_name}に**全額ベット**しました:bangbang: 賭け金は{clean_money_display(bet_amount)}",
-                            color=discord.Color.light_embed()
-                        )
-                        await update_bal(0, user_name)
-                    # if user doesn't have enough balance
-                    else:
-                        response = discord.Embed(
-                            title=f":x:{game_name}ゲーム無効:bangbang:", 
-                            description=f"{user.mention}様の残高は{clean_money_display(gamble_data[user_name])}です。それ以下で賭けてください。", 
-                            color=discord.Color.red()
-                        )
-                # not an integer and not all in
-                except:
-                    response = f"{user.mention}様、数字か「`all`」か「`オール`」を入力してください"
-        # return response to /command invoking this function
-        return response, bet_amount
-
-    def rps_init_embed(self):
-        embed=discord.Embed(title="じゃんけん! :fist: :raised_hand: :v:", color=discord.Color.blurple())
-        embed.add_field(name=":fist:　ぐー", value="", inline=False)
-        embed.add_field(name=":raised_hand:　ぱー", value="", inline=False)
-        embed.add_field(name=":v:　ちょき", value="", inline=False)
-        embed.set_footer(text="チャットに「ぐー」「ちょき」「ぱー」と書いてね")
-        embed.set_image(url=self.image_urls["rps"])
-        return embed
+                result = "ゲームは終了しました、または存在しません..."
+            
+            await interaction.response.send_message(f"{interaction.user.mention} {result}")
     
-    def rps_alt_embed(self):
-        embed=discord.Embed(title="あいこでグ～　じゃんけん、、、", color=discord.Color.blurple())
-        embed.add_field(name=":fist:　ぐー", value="", inline=False)
-        embed.add_field(name=":raised_hand:　ぱー", value="", inline=False)
-        embed.add_field(name=":v:　ちょき", value="", inline=False)
-        return embed
+        button.callback = button_callback
+        view.add_item(button)
+        
+        await interaction.response.send_message(embed=embed, view=view)
+
 
 async def setup(bot):
     await bot.add_cog(GambleCog(bot), guilds=[discord.Object(id=get_guild_id())])

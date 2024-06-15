@@ -56,7 +56,8 @@ class CommandParams():
                 "bal":["選択したユーザーの残高を確認する", {"user":"ユーザーを選択する"}],
                 "flip":["コインの表裏のギャンブル", {"bet_amount":"「all」でオールイン、または数字入力でその額をベット e.g. 「100」", "side":"「表」か「裏」と入力でどちらにコインが落ちると思うか決める"}],
                 "rps":["ギャンブルジャンケン", {"bet_amount":"「all」でオールイン、または数字入力でその額をベット e.g. 「100」"}],
-                "reload_player_sets":["remove players from in-game list", {}]
+                "reload_player_sets":["remove players from in-game list", {}],
+                "rl":["ロシアンルーレット~",{"bet_amount":"「all」でオールイン、または数字入力でその額をベット e.g. 「100」"}]
             }
         )
 

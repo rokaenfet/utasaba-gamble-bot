@@ -90,6 +90,22 @@ def load_giphy_token():
     load_dotenv("token.env")
     return os.environ.get("GIPHY_KEY")
 
+def rps_init_embed():
+    embed=discord.Embed(title="じゃんけん! :fist: :raised_hand: :v:", color=discord.Color.blurple())
+    embed.add_field(name=":fist:　ぐー", value="", inline=False)
+    embed.add_field(name=":raised_hand:　ぱー", value="", inline=False)
+    embed.add_field(name=":v:　ちょき", value="", inline=False)
+    embed.set_footer(text="チャットに「ぐー」「ちょき」「ぱー」と書いてね")
+    embed.set_image(url="https://i0.wp.com/www.vampiretools.com/wp-content/uploads/2018/09/psr.jpg?fit=908%2C490&ssl=1")
+    return embed
+
+def rps_alt_embed():
+    embed=discord.Embed(title="あいこでグ～　じゃんけん、、、", color=discord.Color.blurple())
+    embed.add_field(name=":fist:　ぐー", value="", inline=False)
+    embed.add_field(name=":raised_hand:　ぱー", value="", inline=False)
+    embed.add_field(name=":v:　ちょき", value="", inline=False)
+    return embed
+
 
 
 # ASYNCH
@@ -285,3 +301,79 @@ async def on_message_image_upload_daily(msg:discord.Message):
             # add less money
             await update_bal_delta(amount = 100, user = user_name)
             await msg.add_reaction(str("🔥"))
+
+async def display_win_loss_result(win:bool, bet_amount:int, user:discord.Member, gamble_name:str, rates:float):
+        user_name = user.name
+        gamble_data = await read_json("gamble")
+        if win:
+            win_amount = int(bet_amount*rates)
+            await update_bal_delta(win_amount, user_name)
+            gamble_data = await read_json("gamble")
+            embed = discord.Embed(
+                title = f"{gamble_name}ギャンブル **YOU WIN**:bangbang: :crown:", 
+                description=f"{user.mention}は{clean_money_display(win_amount)}勝ちました！\n現在の残高は{clean_money_display(gamble_data[user_name])}です",
+                color=discord.Color.purple()
+            )
+        else:
+            lose_amount = bet_amount
+            embed = discord.Embed(
+                title = f":regional_indicator_l: {gamble_name}ギャンブル **YOU LOSE**... :sob:", 
+                description=f"{user.mention}は{clean_money_display(lose_amount)}負けたよ、、、\n現在の残高は{clean_money_display(gamble_data[user_name])}です",
+                color=discord.Color.blue()
+            )
+        return embed
+
+async def check_bet_amount(bet_amount:str, user:discord.Member, game_name:str):
+    response = None
+    user_name = user.name
+    bet_amount_response = None
+
+    # check user's bal's existence
+    gamble_data = await read_json("gamble")
+    # get data
+    gamble_data = await check_user_in_gamble_data(gamble_data, user_name)
+
+    # if bet_amount : str
+    if isinstance(bet_amount, str):
+        # is bet_amount == all in
+        if bet_amount.lower() in {"all","オール"}:
+            bet_amount = gamble_data[user_name]
+            response = discord.Embed(
+                title=f":money_with_wings:ALL-IN:exclamation:",
+                description=f"{user.mention}は{game_name}に**全額ベット**しました:bangbang: 賭け金={clean_money_display(bet_amount)}",
+                color=discord.Color.light_embed()
+            )
+            await update_bal(0, user_name)
+        # if not all in
+        else:
+            try:
+                # bet_amount : str > int (check can it be turned to int)
+                bet_amount = int(bet_amount)
+                # if user have enough balance
+                if bet_amount < gamble_data[user_name]:
+                    response = discord.Embed(
+                        title=f":money_with_wings:{game_name} | ギャンブル:money_with_wings:",
+                        description=f"{user.mention}は{game_name}に{clean_money_display(bet_amount)}賭けました",
+                        color=discord.Color.yellow()
+                    )
+                    await update_bal_delta(-bet_amount, user_name)
+                # if its effectively an all in
+                elif bet_amount == gamble_data[user_name]:
+                    response = discord.Embed(
+                        title=f":money_with_wings:{game_name} | ALL-IN:exclamation:",
+                        description=f"{user.mention}は{game_name}に**全額ベット**しました:bangbang: 賭け金は{clean_money_display(bet_amount)}",
+                        color=discord.Color.light_embed()
+                    )
+                    await update_bal(0, user_name)
+                # if user doesn't have enough balance
+                else:
+                    response = discord.Embed(
+                        title=f":x:{game_name}ゲーム無効:bangbang:", 
+                        description=f"{user.mention}様の残高は{clean_money_display(gamble_data[user_name])}です。それ以下で賭けてください。", 
+                        color=discord.Color.red()
+                    )
+            # not an integer and not all in
+            except:
+                response = f"{user.mention}様、数字か「`all`」か「`オール`」を入力してください"
+    # return response to /command invoking this function
+    return response, bet_amount

@@ -59,14 +59,12 @@ GIPHY_KEY=[insert api key]
   - [ ] daily trivia
 - [ ] Money
   - [ ] Gamble
-    - [ ] Rock Paper Scissors
+    - [x] Rock Paper Scissors
       - [x] VS bot
-      - [ ] VS player
     - [x] Coin flip
     - [ ] Horse Racing
     - [ ] Black Jack
       - [ ] solo
-      - [ ] multiple participant
     - [ ] Poker
       - [ ] solo
       - [ ] multiple participant
@@ -74,7 +72,6 @@ GIPHY_KEY=[insert api key]
     - [ ] Russian Roulette
       - [ ] vs bot
       - [ ] vs 1 player
-      - [ ] vs multi players
   - [ ] Grant Money
     - [ ] Via being in VC for over some duration
       - [ ] Move users afk in VC for extended period of time with no activity
