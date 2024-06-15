@@ -70,8 +70,8 @@ GIPHY_KEY=[insert api key]
       - [ ] multiple participant
     - [ ] Stock Trading
     - [ ] Russian Roulette
-      - [ ] vs bot
-      - [ ] vs 1 player
+      - [x] vs bot
+      - [ ] vs players
   - [ ] Grant Money
     - [ ] Via being in VC for over some duration
       - [ ] Move users afk in VC for extended period of time with no activity
