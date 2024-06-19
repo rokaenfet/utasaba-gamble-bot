@@ -168,82 +168,86 @@ class GambleCog(commands.Cog):
                 )
             await interaction.followup.send(embed = response)
     
-    # async def blackjack(self, interaction:discord.Interaction, bet_amount:str, opponent:discord.Member = None): 
-    #     bet_amount_check_response, bet_amount = await check_bet_amount(
-    #         bet_amount=bet_amount, 
-    #         user=user, 
-    #         game_name="gamble"
-    #         )
-        
-    #     cards = {"A" : 1, "2" : 2, "3" : 3, "4" : 4, "5" : 5, "6" : 6, "7" : 7, "8" : 8, "9" : 9, "10" : 10, "J" : 10, "Q" : 10, "K" : 10}
-    #     deck = []
+    async def blackjack(self, interaction:discord.Interaction, bet_amount:str, opponent:discord.Member = None): 
 
-    #     def genDeck():
-    #         deck = []
-    #         # Generate a deck of 6 packs
-    #         for _ in range(6):
-    #             pack = []
-    #             # Generate each pack
-    #             for i in range(4):
-    #                 pack += cards.keys()
-    #                 shuffle(pack)
-    #             deck += pack
-    #             shuffle(deck)
-    #         return deck
+        user = interaction.user
+        user_name = user.name
         
-    #     def deal(): 
-    #         player_hand.append(deck.pop())
-    #         dealer_hand.append(deck.pop())
+        bet_amount_check_response, bet_amount = await check_bet_amount(
+            bet_amount=bet_amount, 
+            user=user, 
+            game_name="gamble"
+            )
+        
+        cards = {"A" : 1, "2" : 2, "3" : 3, "4" : 4, "5" : 5, "6" : 6, "7" : 7, "8" : 8, "9" : 9, "10" : 10, "J" : 10, "Q" : 10, "K" : 10}
+        deck = []
+
+        def genDeck():
+            deck = []
+            # Generate a deck of 6 packs
+            for _ in range(6):
+                pack = []
+                # Generate each pack
+                for i in range(4):
+                    pack += cards.keys()
+                    shuffle(pack)
+                deck += pack
+                shuffle(deck)
+            return deck
+        
+        def deal(): 
+            player_hand.append(deck.pop())
+            dealer_hand.append(deck.pop())
 
             
-    #     def sumHand(hand): 
-    #         hand_sum = 0
-    #         aces = 0
-    #         for i in hand:
-    #             if i != 'A': 
-    #                 hand_sum += cards[i]
-    #             else: 
-    #                 aces += 1
-    #         for i in range(aces): 
-    #             if hand_sum + 11 <= 21: 
-    #                 hand_sum += 11
-    #             else: 
-    #                 hand_sum += 1
-    #         return hand_sum
+        def sumHand(hand): 
+            hand_sum = 0
+            aces = 0
+            for i in hand:
+                if i != 'A': 
+                    hand_sum += cards[i]
+                else: 
+                    aces += 1
+            for i in range(aces): 
+                if hand_sum + 11 <= 21: 
+                    hand_sum += 11
+                else: 
+                    hand_sum += 1
+            return hand_sum
         
-    #     winner = None
-    #     player_hand = []
-    #     dealer_hand = []
-    #     player_value = 0
-    #     dealer_value = 0
-    #     for _ in range(2): 
-    #         player_hand.append(deck.pop())
-    #         dealer_hand.append(deck.pop())
-    #     player_value = sumHand(player_hand)
-    #     dealer_value = sumHand(player_hand)
-    #     if player_hand == 21 and dealer_hand != 21: 
-    #         winner = True
-    #     while winner is None: 
-    #         #TODO add rest of game, hitting and staying
-    #         try:
-    #             await interaction.followup.send(embed = discord.Embed(title= player_hand))
-    #             res = await self.bot.wait_for("message", check=check, timeout=10.0)
-    #             # check game end
+        winner = None
+        player_hand = []
+        dealer_hand = []
+        player_value = 0
+        dealer_value = 0
+        for _ in range(2): 
+            player_hand.append(deck.pop())
+            dealer_hand.append(deck.pop())
+        player_value = sumHand(player_hand)
+        dealer_value = sumHand(player_hand)
+        if player_hand == 21 and dealer_hand != 21: 
+            winner = True
+        while winner is None: 
+            #TODO add rest of game, hitting and staying
+            try:
+                await interaction.followup.send(embed = discord.Embed(title= player_hand))
+                res = await self.bot.wait_for("message", check=check, timeout=10.0)
+                # check game end
                 
-    #         except asyncio.TimeoutError:
-    #             await interaction.followup.send("もっと早く手をだして:exclamation:最初から :person_shrugging:")
-    #             await update_bal_delta(bet_amount, user_name)
-    #             return
-    #     if winner is not None:
-    #         win = winner == "player"
-    #         response = await display_win_loss_result(
-    #             win = win, 
-    #             bet_amount = bet_amount, 
-    #             user = user, 
-    #             gamble_name="BlackJack",
-    #             rates = self.GAMBLE_RATES["rps"]
-    #             )
-    #         await interaction.followup.send(embed = response)
+            except asyncio.TimeoutError:
+                await interaction.followup.send("need to hit or stay")
+                await update_bal_delta(bet_amount, user_name)
+                return
+        if winner is not None:
+            win = winner == "player"
+            response = await display_win_loss_result(
+                win = win, 
+                bet_amount = bet_amount, 
+                user = user, 
+                gamble_name="BlackJack",
+                rates = self.GAMBLE_RATES["rps"]
+                )
+            await interaction.followup.send(embed = response)
             
     @app_commands.command(name=ALL_COMMANDS.gamble.reload_player_sets.name, description=ALL_COMMANDS.gamble.reload_player_sets.description)
     @commands.is_owner()
