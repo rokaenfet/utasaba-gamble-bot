@@ -1,13 +1,13 @@
 {
       "averageaxolotl": {
-            "streak": 3,
+            "streak": 1,
             "last_daily": {
                   "year": 2024,
                   "month": 6,
-                  "day": 14,
-                  "hour": 11,
-                  "minute": 21,
-                  "second": 38
+                  "day": 20,
+                  "hour": 2,
+                  "minute": 22,
+                  "second": 46
             }
       },
       "chunky_johnny": {
@@ -19,6 +19,17 @@
                   "hour": 2,
                   "minute": 4,
                   "second": 8
+            }
+      },
+      "katchi_2201": {
+            "streak": 1,
+            "last_daily": {
+                  "year": 2024,
+                  "month": 6,
+                  "day": 20,
+                  "hour": 2,
+                  "minute": 21,
+                  "second": 45
             }
       }
 }

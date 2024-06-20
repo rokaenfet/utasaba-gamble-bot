@@ -340,7 +340,7 @@ class GambleCog(commands.Cog):
         # get players to join
         embed = discord.Embed(
             title=":yen:ロシアンルーレット:yen:",
-            description=f"{user.mention}がロシアンルーレットの部屋を立てました:bangbang:\n:gun:でリアクションして参加しよう！",
+            description=f"{user.mention}がロシアンルーレットの部屋を立てました:bangbang:\n:gun:でリアクションして参加しよう！\n生き延びた人が全額もらえるよ！",
             color=discord.Color.yellow()
         )
         embed.add_field(name="参加費用", value=f"{clean_money_display(pocket)}")
@@ -351,14 +351,53 @@ class GambleCog(commands.Cog):
         # add reaction for other players to click
         await webhook_msg.add_reaction("🔫")
         # wait for users to react
-        await asyncio.sleep(5)
+        await asyncio.sleep(10)
 
         def check(reaction, user):
             return str(reaction.emoji) == "🔫" and user != self.bot.user
         
-        # refetch msg
-        msg = await msg.original_message()
+        # get msg in cache
+        cache_msg = discord.utils.get(self.bot.cached_messages, id=msg.id)
+        reactions = cache_msg.reactions
 
+        # scan reactions on embed. check which user would like to participate
+        for r in reactions:
+            if str(r.emoji) == "🔫":
+                async for u in r.users():
+                    if u != self.bot.user and u not in self.rl_multi_participants:
+                        self.rl_multi_participants.append(u)
+        
+        # if there is only 1 user, silently add bot to user list
+        if len(self.rl_multi_participants) < 2:
+            self.rl_multi_participants.append(self.bot.user)
+
+        # participant count
+        num_players = len(self.rl_multi_participants)
+
+        data = await read_json("gamble")
+
+        # display users in-game
+        embed = discord.Embed(
+            title=f"🎉{user.name}様主催のロシアンルーレット:exclamation:\n参加者はこちら:exclamation:",
+            color=discord.Color.purple()
+        )
+        for u in self.rl_multi_participants:
+            embed.add_field(name=f"", value=f"{u.mention}\n財力は{clean_money_display(data[u.name])}")
+        await interaction.followup.send(embed = embed)
+
+        # gameplay
+        while len(self.rl_multi_participants) > 1:
+            p = random.choice(self.rl_multi_participants)
+            await update_bal_delta(-pocket, p.name)
+            self.rl_multi_participants.remove(p)
+            await interaction.followup.send(f":skull:{p.mention}:gun:は死にました...")
+            await asyncio.sleep(3)
+        
+        # last man standing
+        winner = self.rl_multi_participants[0]
+        win_amount = pocket * num_players
+        await update_bal_delta(win_amount, winner.name)
+        await interaction.followup.send(f":tada:{winner.mention}:tada:の勝利:exclamation:\n賞金{clean_money_display(win_amount)}ゲット:bangbang:")
 
 async def setup(bot):
     await bot.add_cog(GambleCog(bot), guilds=[discord.Object(id=get_guild_id())])

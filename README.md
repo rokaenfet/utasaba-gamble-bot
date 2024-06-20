@@ -69,9 +69,9 @@ GIPHY_KEY=[insert api key]
       - [ ] solo
       - [ ] multiple participant
     - [ ] Stock Trading
-    - [ ] Russian Roulette
+    - [x] Russian Roulette
       - [x] vs bot
-      - [ ] vs players
+      - [x] vs players
   - [ ] Grant Money
     - [ ] Via being in VC for over some duration
       - [ ] Move users afk in VC for extended period of time with no activity
@@ -80,6 +80,14 @@ GIPHY_KEY=[insert api key]
     - [x] Posting an image of animals in a specific chat daily "動物"
       - [ ] Only reward if image is deemed a food img by AI
     - [x] reward small amount of money if valid しりとり answer
+  - [ ] gamble for match results
+    - [ ] sports
+      - [ ] football
+      - [ ] baseball
+      - [ ] basketball
+    - [ ] games
+      - [ ] valorant
+      - [ ] apex legends
 - [ ] member management
   - [x] checkしりとりvalidity
     - [x] finishing in ん?
@@ -96,6 +104,9 @@ GIPHY_KEY=[insert api key]
   - [x] reload extensions
   - [x] give money
   - [ ] /help to display each category of commands easier
+  - [ ] shiritori managing commands
+    - [ ] delete past n words from shiritori.json
+    - [ ] delete a specific word from shiritori.json
 
 ### tools / urls
 - https://emojipedia.org
