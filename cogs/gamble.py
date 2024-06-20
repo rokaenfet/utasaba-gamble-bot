@@ -231,7 +231,7 @@ class GambleCog(commands.Cog):
             #TODO add rest of game, hitting and staying
             try:
                 await interaction.followup.send(embed = discord.Embed(title= player_hand))
-                res = await self.bot.wait_for("message", check=check, timeout=10.0)
+                # res = await self.bot.wait_for("message", check=check, timeout=10.0)
                 # check game end
                 
             except asyncio.TimeoutError:
