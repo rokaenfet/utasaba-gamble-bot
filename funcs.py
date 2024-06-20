@@ -371,8 +371,10 @@ async def check_bet_amount(bet_amount:str, user:discord.Member, game_name:str):
                         description=f"{user.mention}様の残高は{clean_money_display(gamble_data[user_name])}です。それ以下で賭けてください。", 
                         color=discord.Color.red()
                     )
+                    bet_amount = None
             # not an integer and not all in
             except:
                 response = f"{user.mention}様、数字か「`all`」か「`オール`」を入力してください"
+                bet_amount = None
     # return response to /command invoking this function
     return response, bet_amount

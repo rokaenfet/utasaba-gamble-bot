@@ -12,7 +12,7 @@ from commands_argument import get_all_commands
 ALL_COMMANDS = get_all_commands()
 
 class GambleCog(commands.Cog):
-    def __init__(self, bot):
+    def __init__(self, bot:commands.Bot):
         self.bot = bot
         self.midbet_users = set()
         self.midgame_rps_users = set()
@@ -23,6 +23,9 @@ class GambleCog(commands.Cog):
             "russian_roulette":1.8
         }
         self.VERBOSE = False
+
+        # rl_multi
+        self.rl_multi_participants = []
 
     @commands.Cog.listener()
     async def on_ready(self):
@@ -268,7 +271,7 @@ class GambleCog(commands.Cog):
         bet_amount_check_response, bet_amount = await check_bet_amount(
             bet_amount=bet_amount, 
             user=user, 
-            game_name="ロシアンルーレット"
+            game_name="一人ロシアンルーレット"
             )
         if isinstance(bet_amount_check_response, str):
             await interaction.followup.send(bet_amount_check_response)
@@ -305,6 +308,52 @@ class GambleCog(commands.Cog):
         view.add_item(button)
         
         await interaction.followup.send(embed=embed, view=view)
+
+    @app_commands.command(name=ALL_COMMANDS.gamble.rl_multi.name, description=ALL_COMMANDS.gamble.rl_multi.description)
+    @app_commands.describe(
+        pocket=ALL_COMMANDS.gamble.rl_multi.pocket
+    )
+    async def rl_multi(self, interaction:discord.Interaction, pocket:str):
+        # user in question
+        user = interaction.user
+        user_name = user.name
+        # check bet_amount, and get reply message [str | embed] and bet_amout [int]
+        bet_amount_check_response, pocket = await check_bet_amount(
+            bet_amount=pocket, 
+            user=user, 
+            game_name="ロシアンルーレット"
+            )
+        if isinstance(bet_amount_check_response, str):
+            await interaction.response.send_message(bet_amount_check_response)
+        elif isinstance(bet_amount_check_response, discord.Embed):
+            await interaction.response.send_message(embed=bet_amount_check_response)
+        else:
+            print(f"invalid return of {type(bet_amount_check_response)}")
+            return
+        
+        if pocket is None: return
+        
+        # get players to join
+        embed = discord.Embed(
+            title=":yen:ロシアンルーレット:yen:",
+            description=f"{user.mention}がロシアンルーレットの部屋を立てました:bangbang:\n:gun:でリアクションして参加しよう！",
+            color=discord.Color.yellow()
+        )
+        embed.add_field(name="参加費用", value=f"{clean_money_display(pocket)}")
+        # discord.WebhookMessage
+        webhook_msg = await interaction.followup.send(embed=embed, wait=True)
+        # get discord.Message obj
+        msg = await webhook_msg.fetch()
+        # add reaction for other players to click
+        await webhook_msg.add_reaction("🔫")
+        # wait for users to react
+        await asyncio.sleep(5)
+
+        def check(reaction, user):
+            return str(reaction.emoji) == "🔫" and user != self.bot.user
+        
+        # refetch msg
+        msg = await msg.original_message()
 
 
 async def setup(bot):
