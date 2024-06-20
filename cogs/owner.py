@@ -24,7 +24,7 @@ class OwnerCog(commands.Cog):
         user=ALL_COMMANDS.owner.admin_change_money.user,
         money=ALL_COMMANDS.owner.admin_change_money.money
     )
-    @commands.is_owner()
+    @commands.has_role("Admin")
     async def admin_change_money(self, interaction:discord.Interaction, user:discord.Member = None, money:int = None):
         gamble_data = await read_json("gamble")
         if user is None:
@@ -45,7 +45,7 @@ class OwnerCog(commands.Cog):
         await interaction.response.send_message(embed=embed)
 
     @app_commands.command(name=ALL_COMMANDS.owner.reload.name, description=ALL_COMMANDS.owner.reload.description)
-    @commands.is_owner()
+    @commands.has_role("Admin")
     async def reload(self, interaction:discord.Interaction):
         extensions = get_extensions()
         load_success = True
@@ -76,7 +76,7 @@ class OwnerCog(commands.Cog):
     @app_commands.describe(
         user=ALL_COMMANDS.owner.reset_daily.user
     )
-    @commands.is_owner()
+    @commands.has_role("Admin")
     async def reset_daily(self, interaction:discord.Interaction, user:discord.Member = None):
         # parse user arg
         if user is None:
@@ -100,7 +100,7 @@ class OwnerCog(commands.Cog):
         channel=ALL_COMMANDS.owner.get_channel_text.channel,
         history=ALL_COMMANDS.owner.get_channel_text.history
     )
-    @commands.is_owner()
+    @commands.has_role("Admin")
     async def get_channel_text(self, interaction:discord.Interaction, channel:discord.TextChannel, history:int=10):
         def format_rep(arr):
             s = ""
@@ -119,7 +119,7 @@ class OwnerCog(commands.Cog):
         channel = ALL_COMMANDS.owner.purge.channel,
         number  = ALL_COMMANDS.owner.purge.number
     )
-    @commands.is_owner()
+    @commands.has_role("Admin")
     async def purge(self, interaction:discord.Interaction, channel:discord.TextChannel, number:int):
         num_messages = len([message async for message in channel.history(limit=100)])
         await interaction.response.defer()
