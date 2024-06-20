@@ -253,7 +253,7 @@ class GambleCog(commands.Cog):
             await interaction.followup.send(embed = response)
             
     @app_commands.command(name=ALL_COMMANDS.gamble.reload_player_sets.name, description=ALL_COMMANDS.gamble.reload_player_sets.description)
-    @commands.is_owner()
+    @commands.has_role("Admin")
     async def reload_player_sets(self, interaction:discord.Interaction):
         self.midbet_users = set()
         self.midgame_rps_users = set()
