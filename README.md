@@ -73,7 +73,7 @@ GIPHY_KEY=[insert api key]
       - [x] vs bot
       - [x] vs players
   - [ ] Grant Money
-    - [ ] Via being in VC for over some duration
+    - [x] Via being in VC for over some duration
       - [ ] Move users afk in VC for extended period of time with no activity
     - [x] Posting an image of food in a specific chat daily "飯テロ"
       - [ ] Only reward if image is deemed a food img by AI
@@ -104,9 +104,9 @@ GIPHY_KEY=[insert api key]
   - [x] reload extensions
   - [x] give money
   - [ ] /help to display each category of commands easier
-  - [ ] shiritori managing commands
-    - [ ] delete past n words from shiritori.json
-    - [ ] delete a specific word from shiritori.json
+  - [x] shiritori managing commands
+    - [x] delete past n words from shiritori.json
+    - [x] delete a specific word from shiritori.json
 
 ### tools / urls
 - https://emojipedia.org

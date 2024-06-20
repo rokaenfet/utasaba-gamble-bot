@@ -24,13 +24,14 @@ ALL_SPECIAL_CHANNEL_ID = [
     MESHITERO_CHANNEL_ID,
     DOUBUTSU_CHANNEL_ID
     ]
+VOICE_CHANNEL_ID = 1253358975663997009
+
+# VOICE CHANNEL ACTIVITY LIST
+user_join_times = dict()
+user_total_times = dict()
 
 # LOGGING
 handler = logging.FileHandler(filename='discord.log', encoding='utf-8', mode='w')
-
-# CHECK MID-GAME
-midgame_rps_users = set()
-midbet_users = set()
 
 # LOAD TOKEN KEY
 DISCORD_TOKEN = load_bot_token()
@@ -70,6 +71,51 @@ async def on_message(msg:discord.Message):
     elif msg.channel.id not in ALL_SPECIAL_CHANNEL_ID:
         await bot.process_commands(msg)
 
+# reward for time spent in voice channel check
+@bot.event
+async def on_voice_state_update(member:discord.Member, before:discord.VoiceState, after:discord.VoiceState):
+    # The specific channel ID you want to track
+    specific_channel_id = VOICE_CHANNEL_ID  # Replace with your channel ID
+    time_spent = None
+
+    # User joins the specific voice channel
+    if before.channel is None and after.channel and after.channel.id == specific_channel_id:
+        user_join_times[member.id] = datetime.datetime.now(datetime.timezone.utc)
+        print(f'{member} joined {after.channel.name} at {user_join_times[member.id]}')
+
+    # User leaves the specific voice channel
+    elif before.channel and before.channel.id == specific_channel_id and (after.channel is None or after.channel.id != specific_channel_id):
+        join_time = user_join_times.pop(member.id, None)
+        if join_time:
+            time_spent = datetime.datetime.now(datetime.timezone.utc) - join_time
+            if member.id in user_total_times:
+                user_total_times[member.id] += time_spent
+            else:
+                user_total_times[member.id] = time_spent
+            print(f'{member} left {before.channel.name} after {time_spent}')
+            print(f'Total time spent by {member}: {user_total_times[member.id]}')
+
+    # User switches between channels and one of them is the specific channel
+    elif before.channel and after.channel and before.channel.id != after.channel.id:
+        if before.channel.id == specific_channel_id:
+            join_time = user_join_times.pop(member.id, None)
+            if join_time:
+                time_spent = datetime.utcnow() - join_time
+                if member.id in user_total_times:
+                    user_total_times[member.id] += time_spent
+                else:
+                    user_total_times[member.id] = time_spent
+                print(f'{member} left {before.channel.name} after {time_spent}')
+                print(f'Total time spent by {member}: {user_total_times[member.id]}')
+
+        if after.channel.id == specific_channel_id:
+            user_join_times[member.id] = datetime.datetime.now(datetime.timezone.utc)
+            print(f'{member} joined {after.channel.name} at {user_join_times[member.id]}')
+
+    # if time has been spent in vc
+    if time_spent:
+        # reward by time spent in vc
+        await update_bal_delta(round(time_spent.total_seconds()*10,-2), member.name)
 
 # COMMAND
 @bot.command(name="sync")
