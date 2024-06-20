@@ -73,7 +73,7 @@ async def on_message(msg:discord.Message):
 
 # COMMAND
 @bot.command(name="sync")
-@commands.is_owner()
+@commands.has_role("Admin")
 async def sync(ctx):
     print("SYNCING")
     sync_timer = time.time()
