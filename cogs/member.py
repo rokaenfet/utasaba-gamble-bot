@@ -23,7 +23,7 @@ class MemberCog(commands.Cog):
     @app_commands.command(name=ALL_COMMANDS.member.shiritori.name, description=ALL_COMMANDS.member.shiritori.description)
     async def shiritori(self, interaction:discord.Interaction):
         shiritori = await read_json("shiritori")
-        await interaction.response.send_message(f"現在のしりとりの尻言葉は`{shiritori['last_message']}`です")
+        await interaction.response.send_message(f"現在のしりとりの尻言葉は`{shiritori['history'][-1]}`です")
 
 async def setup(bot):
     await bot.add_cog(MemberCog(bot), guilds=[discord.Object(id=get_guild_id())])

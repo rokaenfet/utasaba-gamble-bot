@@ -213,7 +213,7 @@ async def shiritori_on_message(msg:discord.Message):
 
     shiritori_data = await read_json("shiritori")
     # last message
-    last_word = shiritori_data["last_message"]
+    last_word = shiritori_data["history"][-1]
     # check 伸ばし棒
     last_char = last_word[-2] if last_word[-1] == "ー" else last_word[-1]
     # katakana > hiragana

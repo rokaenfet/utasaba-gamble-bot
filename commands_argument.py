@@ -46,7 +46,9 @@ class CommandParams():
                 "reload":["update cogs/*** extensions", {}],
                 "reset_daily":["reset the daily for a specific user", {"user":"member to reset daily for"}],
                 "get_channel_text":["get all text in a given text channel", {"channel":"channel to get all txt for", "history":"how many messages to go back"}],
-                "purge":["remove some amount of messages", {"channel":"channel to remove texts from","number":"quantity of messages to remove"}]
+                "purge":["remove some amount of messages", {"channel":"channel to remove texts from","number":"quantity of messages to remove"}],
+                "shiritori_del_words":["remove n recent words from shiritori list", {"n":"num of recent words to remove"}],
+                "shiritori_show_words":["show n recent words from shiritori list", {"n":"num of recent words to remove"}]
             }
         )
 

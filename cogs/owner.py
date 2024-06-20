@@ -126,5 +126,48 @@ class OwnerCog(commands.Cog):
         purged = await channel.purge(limit=min(num_messages, number))
         await interaction.followup.send(f"{min(num_messages,number)} messages has been purged from {channel.mention}")
 
+    @app_commands.command(name=ALL_COMMANDS.owner.shiritori_del_words.name, description=ALL_COMMANDS.owner.shiritori_del_words.description)
+    @app_commands.describe(
+        n=ALL_COMMANDS.owner.shiritori_del_words.n
+    )
+    @commands.has_role("Admin")
+    async def shiritori_del_words(self, interaction:discord.Interaction, n:int):
+        data = await read_json("shiritori")
+
+        # Ensure n is not greater than the length of the history
+        if n > len(data["history"]):
+            await interaction.response.send_message("Cannot delete more words than are present in the history.", ephemeral=True)
+            return
+
+        # Delete the last n words
+        data["history"] = data["history"][:-n]
+
+        # Save the updated data
+        update_json("shiritori", data)
+
+        await interaction.response.send_message(f"Deleted the last {n} words from the shiritori history.", ephemeral=True)
+
+    @app_commands.command(name=ALL_COMMANDS.owner.shiritori_show_words.name, description=ALL_COMMANDS.owner.shiritori_show_words.description)
+    @app_commands.describe(
+        n=ALL_COMMANDS.owner.shiritori_show_words.n
+        )
+    @commands.has_role("Admin")
+    async def shiritori_show_words(self, interaction: discord.Interaction, n: int):
+        data = await read_json("shiritori")
+
+        # Ensure n is not greater than the length of the history
+        if n > len(data["history"]):
+            n = len(data["history"])
+
+        # Get the last n words
+        last_n_words = data["history"][-n:]
+
+        # Create a formatted string of the last n words
+        last_n_words_str = "\n".join(last_n_words)
+
+        await interaction.response.send_message(f"The last {n} words in the shiritori history are:\n{last_n_words_str}", ephemeral=True)
+
+
+
 async def setup(bot):
     await bot.add_cog(OwnerCog(bot), guilds=[discord.Object(id=get_guild_id())])
