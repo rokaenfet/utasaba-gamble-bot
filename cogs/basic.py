@@ -31,7 +31,7 @@ class BasicCog(commands.Cog):
             embed.add_field(name="Guild Locale", value=f"{interaction.guild_locale}", inline=False)
             embed.add_field(name="Client", value=f"{interaction.client.user}", inline=False)
             embed.add_field(name="/info command description", value=f"{interaction.command.description}", inline=False)
-            await interaction.response.send_message(embed=embed)
+            await interaction.response.send_message(embed=embed, ephemeral=True)
         except Exception as e:
             print(f"Error: {e}")
 
@@ -40,7 +40,7 @@ class BasicCog(commands.Cog):
         member=ALL_COMMANDS.basic.avatar.member
     )
     async def avatar(self, interaction:discord.Interaction, member:discord.Member):
-        await interaction.response.send_message(member.display_avatar)
+        await interaction.response.send_message(member.display_avatar, ephemeral=True)
 
     @app_commands.command(name=ALL_COMMANDS.basic.daily.name, description=ALL_COMMANDS.basic.daily.description)
     async def daily(self, interaction:discord.Interaction):

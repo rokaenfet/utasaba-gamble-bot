@@ -54,7 +54,7 @@ class GambleCog(commands.Cog):
         gamble_data = await check_user_in_gamble_data(gamble_data, user_name)
         update_json("gamble", gamble_data)
         embed = discord.Embed(title=f":euro: 残高 :dollar:", description=f"{user.mention}の残高\n{clean_money_display(gamble_data[user_name])}", color=discord.Color.magenta())
-        await interaction.response.send_message(embed=embed)
+        await interaction.response.send_message(embed=embed, ephemeral=True)
 
     @app_commands.command(name=ALL_COMMANDS.gamble.flip.name, description=ALL_COMMANDS.gamble.flip.description)
     @app_commands.describe(
@@ -132,7 +132,7 @@ class GambleCog(commands.Cog):
             "ぱー":2
         }
 
-        def check(msg):
+        def check(msg:discord.Message):
             return msg.content in rps_dict and msg.author == user and msg.channel == interaction.channel
         
         rps_first_round = True
@@ -258,7 +258,7 @@ class GambleCog(commands.Cog):
         self.midbet_users = set()
         self.midgame_rps_users = set()
         embed = discord.Embed(title="set_reset", description=f"In-Game sets reset complete :D", color=discord.Color.brand_green())
-        await interaction.response.send_message(embed=embed)
+        await interaction.response.send_message(embed=embed, ephemeral=True)
 
     @app_commands.command(name=ALL_COMMANDS.gamble.rl.name, description=ALL_COMMANDS.gamble.rl.description)
     @app_commands.describe(
