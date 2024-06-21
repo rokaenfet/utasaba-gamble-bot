@@ -94,7 +94,7 @@ class BasicCog(commands.Cog):
                 "streak":streak, 
                 "last_daily": encode_datetime_timestamp(cur_time)
                 }
-            await update_json("daily", daily_data)
+            update_json("daily", daily_data)
         else:
             next_daily = (user_last_daily_time+datetime.timedelta(days=1)) - cur_time
             hour, minute, second = next_daily.seconds//3600, (next_daily.seconds//60)%60, next_daily.seconds%60
