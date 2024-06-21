@@ -50,6 +50,9 @@ GIPHY_KEY=[insert api key]
 - [ ] Bot Env
   - [ ] Transform to SQL DB
   - [x] Slash commands rather than prefix commands e.g. `!info ` to ` /info`
+  - [ ] Make certain messages ephermal / accessible
+    - [ ] Admins > can use all commands and see all reps to any users
+    - [ ] Members > can use certain commands and see only reps to themselves for certain commands
 - [ ] Basic
   - [x] info
   - [x] bal
