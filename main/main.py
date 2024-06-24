@@ -1,12 +1,8 @@
-import os
 import discord
-import asyncio
 import time
 import logging
-import schedule
-import re
 from discord.ext import commands
-from pretty_help import PrettyHelp
+# from pretty_help import PrettyHelp
 
 from funcs import *
 
@@ -40,8 +36,8 @@ DISCORD_TOKEN = load_bot_token()
 VERBOSE = True
 
 intents = discord.Intents.all()
-menu = PrettyHelp()
-bot = commands.Bot(command_prefix = ["!","/","?","fish "], intents=intents, case_insensitive=True, help_command=menu)
+# menu = PrettyHelp()
+bot = commands.Bot(command_prefix = ["!","/","?","fish "], intents=intents, case_insensitive=True)
 
 # EVENTT
 # on ready
