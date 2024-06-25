@@ -1,9 +1,9 @@
-# fly.toml app configuration file generated for utasaba-gamble-bot-lingering-glade-3045 on 2024-06-24T21:50:00+09:00
+# fly.toml app configuration file generated for utasaba-gamble-bot on 2024-06-24T22:03:15+09:00
 #
 # See https://fly.io/docs/reference/configuration/ for information about how to use this file.
 #
 
-app = 'utasaba-gamble-bot-lingering-glade-3045'
+app = 'utasaba-gamble-bot'
 primary_region = 'hkg'
 
 [http_service]

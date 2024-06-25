@@ -296,7 +296,7 @@ async def on_message_image_upload_daily(msg:discord.Message):
                 "streak":streak, 
                 "last_daily": encode_datetime_timestamp(cur_time)
                 }
-            await update_json(json_f, data)
+            update_json(json_f, data)
         else:
             # add less money
             await update_bal_delta(amount = 100, user = user_name)

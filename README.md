@@ -101,6 +101,8 @@ GIPHY_KEY=[insert api key]
     - [x] handle small case chars and `-`
     - [x] 金貨(きんか) > きんか
     - [x] strip messages of special characters
+    - [ ] Only allow hiragana or katakana in bracket
+      - [ ] disallow 
   - [ ] assign certain roles given text input in a specific thread e.g. `#見ざる`　`#囁き隊`
 - [x] owner/admin
   - [x] sync commands
