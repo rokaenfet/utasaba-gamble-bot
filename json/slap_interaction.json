@@ -1,11 +1,13 @@
 {
       "averageaxolotl": {
             "capitulation": 4,
-            "stinky-fish-bot": 7,
+            "stinky-fish-bot": 8,
             "katchi_2201": 2,
             "chunky_johnny": 1,
             "averageaxolotl": 3,
-            "karon_dazo": 1
+            "karon_dazo": 7,
+            "warota201": 4,
+            "akane8244": 1
       },
       "katchi_2201": {
             "averageaxolotl": 1
@@ -14,6 +16,12 @@
             "karon_dazo": 3
       },
       "karon_dazo": {
-            "_ssuu_": 1
+            "_ssuu_": 1,
+            "averageaxolotl": 5,
+            "warota201": 4
+      },
+      "warota201": {
+            "karon_dazo": 3,
+            "averageaxolotl": 3
       }
 }

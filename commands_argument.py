@@ -34,8 +34,11 @@ class CommandParams():
                 "avatar":["Get user avatar", {"member":"@[ユーザー名]"}],
                 "daily":["１日一回のデイリー報酬をもらうコマンド", {}],
                 "send_money":["選んだ相手にお金を送ろう！", {"user":"お金を送りたいユーザー名", "amount":"送る金額か「all」で全額送る"}],
+                "reload_gif":["reload gifs from GIPHY",{}],
                 "slap":["ビンタァァァァァ！！！",{"user":"誰をぉぉぉ、ビンタァァァ、するんだぁぁいぃぃ？！"}],
-                "reload_gif":["reload gifs from GIPHY",{}]
+                "punch":["ぱーんち！",{"user":"誰をパンチしたいんだい？"}],
+                "hug":["窒息するほどのハグをしよう！",{"user":"誰に抱擁を授けるのでしょうか？"}],
+                "dance":["イッツパーティタァァァイム！！！",{"user":"朝まで一緒に踊るイカレたやつを選べぇ！"}],
             }
         )
         

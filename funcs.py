@@ -10,6 +10,7 @@ import re
 import time
 import jaconv
 import langdetect
+import random
 from discord.ext import commands
 from dotenv import load_dotenv
 from dotenv import load_dotenv
@@ -398,3 +399,27 @@ async def check_bet_amount(bet_amount:str, user:discord.Member, game_name:str):
                 bet_amount = None
     # return response to /command invoking this function
     return response, bet_amount
+
+async def basic_interaction(interaction: discord.Interaction, user: discord.Member, gifs, json_f:str):
+    # user
+    send_user = interaction.user
+    send_user_name = send_user.name
+    receive_user = user
+    receive_user_name = receive_user.name
+    # data
+    data = await read_json(json_f)
+    # check send_user has ever interacted
+    if send_user_name not in data:
+        data[send_user_name] = {}
+    # check receive_user has been interacted by send_user
+    if receive_user_name not in data[send_user_name]:
+        data[send_user_name][receive_user_name] = 0
+
+    # select gif
+    gif_url = random.choice(gifs)['images']['original']['url']
+
+    # slap
+    data[send_user_name][receive_user_name] += 1
+    update_json(json_f, data)
+    
+    return gif_url

@@ -58,7 +58,11 @@ GIPHY_KEY=[insert api key]
   - [x] bal
   - [x] send money
   - [x] simple interactions
-    - [x] e.g. slap
+    - [x] slap
+    - [ ] punch
+    - [ ] hug
+    - [ ] pat
+    - [ ] dance
   - [ ] daily trivia
 - [ ] Money
   - [ ] Gamble
