@@ -23,10 +23,10 @@
                         "last_daily": {
                               "year": 2024,
                               "month": 6,
-                              "day": 20,
-                              "hour": 2,
-                              "minute": 22,
-                              "second": 39
+                              "day": 25,
+                              "hour": 12,
+                              "minute": 13,
+                              "second": 45
                         }
                   },
                   "_ssuu_": {
@@ -38,6 +38,28 @@
                               "hour": 14,
                               "minute": 6,
                               "second": 52
+                        }
+                  },
+                  "karon_dazo": {
+                        "streak": 1,
+                        "last_daily": {
+                              "year": 2024,
+                              "month": 6,
+                              "day": 25,
+                              "hour": 12,
+                              "minute": 12,
+                              "second": 49
+                        }
+                  },
+                  "warota201": {
+                        "streak": 1,
+                        "last_daily": {
+                              "year": 2024,
+                              "month": 6,
+                              "day": 25,
+                              "hour": 12,
+                              "minute": 14,
+                              "second": 24
                         }
                   }
             }

@@ -36,6 +36,7 @@ class OwnerCog(commands.Cog):
         if money is None:
             money = gamble_data[user_name]
         prev_bal = gamble_data[user_name]
+        if money < 0: money = 0
         await update_bal(money, user_name)
         gamble_data = await read_json("gamble")
         embed = discord.Embed(

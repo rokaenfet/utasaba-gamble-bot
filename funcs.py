@@ -206,7 +206,7 @@ async def shiritori_on_ready(bot:commands.Bot, TEXT_CHANNEL_ID:int):
             new_msg = check_str_validity_for_shiritori(msg)
             if new_msg:
                 new_msgs.append(new_msg)
-        update_json("shiritori", {"last_message":"", "user":"", "history": new_msgs})
+        update_json("shiritori", {"last_message":"", "user":"", "history": new_msgs[::-1]})
     print(f"loaded all msg in #{text_channel}. Load time: {round(time.time()-t,3)}s")
 
 # ON_MESSAGE_SEND
@@ -371,8 +371,15 @@ async def check_bet_amount(bet_amount:str, user:discord.Member, game_name:str):
             try:
                 # bet_amount : str > int (check can it be turned to int)
                 bet_amount = int(bet_amount)
+                # dont allow negative bets
+                if bet_amount <= 0:
+                    response = discord.Embed(
+                        title=f"０:coin:以上の金額をベットしてください",
+                        color=discord.Color.light_embed()
+                    )
+                    bet_amount = None
                 # if user have enough balance
-                if bet_amount < gamble_data[user_name]:
+                elif bet_amount < gamble_data[user_name]:
                     response = discord.Embed(
                         title=f":money_with_wings:{game_name} | ギャンブル:money_with_wings:",
                         description=f"{user.mention}は{game_name}に{clean_money_display(bet_amount)}賭けました",

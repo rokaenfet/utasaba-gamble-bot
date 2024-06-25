@@ -167,12 +167,16 @@ class BasicCog(commands.Cog):
             gifs=self.gif.gifs[interaction_name],
             json_f=json_f
         )
+
         data = await read_json(json_f)
         embed = discord.Embed(
             title=":raised_hand:ビ・ン・タ:raised_back_of_hand:",
             description=f"{send_user.mention}は{receive_user.mention}を**{data[send_user_name][receive_user_name]}回**ビンタしました:exclamation:",
             color=discord.Color.purple()
         )
+        interaction_quantity = data[send_user_name][receive_user_name]
+        if interaction_quantity % 10 == 0:
+            embed.add_field(name=f"{interaction_quantity}回目:exclamation:",value=f"報酬に{clean_money_display(interaction_quantity*100)}")
         
         embed.set_image(url=gif_url)
         
@@ -206,6 +210,9 @@ class BasicCog(commands.Cog):
             description=f"{send_user.mention}は{receive_user.mention}を**{data[send_user_name][receive_user_name]}回**パンチしました:exclamation:",
             color=discord.Color.purple()
         )
+        interaction_quantity = data[send_user_name][receive_user_name]
+        if interaction_quantity % 10 == 0:
+            embed.add_field(name=f"{interaction_quantity}回目:exclamation:",value=f"報酬に{clean_money_display(interaction_quantity*100)}")
         
         embed.set_image(url=gif_url)
         
@@ -240,6 +247,9 @@ class BasicCog(commands.Cog):
             description=f"{send_user.mention}は{receive_user.mention}と**{data[send_user_name][receive_user_name]}回**踊りました:exclamation:",
             color=discord.Color.purple()
         )
+        interaction_quantity = data[send_user_name][receive_user_name]
+        if interaction_quantity % 10 == 0:
+            embed.add_field(name=f"{interaction_quantity}回目:exclamation:",value=f"報酬に{clean_money_display(interaction_quantity*100)}")
         
         embed.set_image(url=gif_url)
         
@@ -274,6 +284,9 @@ class BasicCog(commands.Cog):
             description=f"{send_user.mention}は{receive_user.mention}を**{data[send_user_name][receive_user_name]}回**ハグしました:exclamation:",
             color=discord.Color.purple()
         )
+        interaction_quantity = data[send_user_name][receive_user_name]
+        if interaction_quantity % 10 == 0:
+            embed.add_field(name=f"{interaction_quantity}回目:exclamation:",value=f"報酬に{clean_money_display(interaction_quantity*100)}")
         
         embed.set_image(url=gif_url)
         
@@ -285,6 +298,10 @@ class BasicCog(commands.Cog):
         t = time.time()
         self.gif.load_gifs()
         await interaction.response.send_message(f"Reloaded gifs in {round(time.time()-t,3)}s")
+
+    @app_commands.command(name=ALL_COMMANDS.basic.rankings.name, description=ALL_COMMANDS.basic.rankings.description)
+    async def rankings(self, interaction:discord.Interaction, name:str):
+        pass
 
 async def setup(bot):
     await bot.add_cog(BasicCog(bot), guilds=[discord.Object(id=get_guild_id())])
