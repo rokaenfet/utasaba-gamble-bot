@@ -128,6 +128,8 @@ def check_str_validity_for_shiritori(msg: str):
     """
     try:
         msg = translate_jp_bracket_to_eng_bracket(msg)
+        if not("(" in msg and ")" in msg and msg.index("(")<msg.index(")")):
+            return None
         msg = find_string_between_bracket(msg)
         msg = strip_special_chars(msg)
         msg = jaconv.kata2hira(msg)
