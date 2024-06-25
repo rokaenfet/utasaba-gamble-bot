@@ -53,5 +53,16 @@
                   "minute": 1,
                   "second": 13
             }
+      },
+      "akane8244": {
+            "streak": 1,
+            "last_daily": {
+                  "year": 2024,
+                  "month": 6,
+                  "day": 25,
+                  "hour": 13,
+                  "minute": 14,
+                  "second": 7
+            }
       }
 }

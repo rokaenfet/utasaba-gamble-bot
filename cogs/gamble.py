@@ -387,11 +387,14 @@ class GambleCog(commands.Cog):
             embed.add_field(name=f"", value=f"{u.mention}\n財力は{clean_money_display(data[u.name])}")
         await interaction.followup.send(embed = embed)
 
+        # subtract money
+        for u in self.rl_multi_participants:
+            if u != user:
+                await update_bal_delta(-pocket, u.name)
+
         # gameplay
         while len(self.rl_multi_participants) > 1:
             p = random.choice(self.rl_multi_participants)
-            if p != user:
-                await update_bal_delta(-pocket, p.name)
             self.rl_multi_participants.remove(p)
             await asyncio.sleep(3)
             await interaction.followup.send(f":skull:{p.mention}:gun:は死にました...")
