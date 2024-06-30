@@ -120,3 +120,6 @@ GIPHY_KEY=[insert api key]
 ### tools / urls
 - https://emojipedia.org
   - for getting default emoji's UTF code
+
+
+![](giphy_attribution_mark.png)
