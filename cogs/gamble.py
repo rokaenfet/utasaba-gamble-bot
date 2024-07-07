@@ -54,7 +54,7 @@ class GambleCog(commands.Cog):
         gamble_data = await check_user_in_gamble_data(gamble_data, user_name)
         update_json("gamble", gamble_data)
         embed = discord.Embed(title=f":euro: 残高 :dollar:", description=f"{user.mention}の残高\n{clean_money_display(gamble_data[user_name])}", color=discord.Color.magenta())
-        await interaction.response.send_message(embed=embed)
+        await interaction.response.send_message(embed=embed, ephemeral=True)
 
     @app_commands.command(name=ALL_COMMANDS.gamble.flip.name, description=ALL_COMMANDS.gamble.flip.description)
     @app_commands.describe(
@@ -77,12 +77,13 @@ class GambleCog(commands.Cog):
             game_name="コイントス"
             )
         if isinstance(bet_amount_check_response, str):
-            await interaction.response.send_message(bet_amount_check_response)
+            await interaction.response.send_message(bet_amount_check_response, ephemeral=True)
         elif isinstance(bet_amount_check_response, discord.Embed):
-            await interaction.response.send_message(embed=bet_amount_check_response)
+            await interaction.response.send_message(embed=bet_amount_check_response, ephemeral=True)
         else:
             print(f"invalid return of {type(bet_amount_check_response)}")
             return
+        if bet_amount is None: return
         
         # get win/loss
         win = random.choice((0,1)) == 0
@@ -118,12 +119,13 @@ class GambleCog(commands.Cog):
             game_name="ジャンケン"
             )
         if isinstance(bet_amount_check_response, str):
-            await interaction.response.send_message(bet_amount_check_response)
+            await interaction.response.send_message(bet_amount_check_response, ephemeral=True)
         elif isinstance(bet_amount_check_response, discord.Embed):
-            await interaction.response.send_message(embed=bet_amount_check_response)
+            await interaction.response.send_message(embed=bet_amount_check_response, ephemeral=True)
         else:
             print(f"invalid return of {type(bet_amount_check_response)}")
             return
+        if bet_amount is None: return
 
         # load rps
         rps_dict = {
@@ -132,7 +134,7 @@ class GambleCog(commands.Cog):
             "ぱー":2
         }
 
-        def check(msg):
+        def check(msg:discord.Message):
             return msg.content in rps_dict and msg.author == user and msg.channel == interaction.channel
         
         rps_first_round = True
@@ -149,7 +151,7 @@ class GambleCog(commands.Cog):
                 player_hand = res.content
                 rps_first_round = False
                 bot_hand = random.choice(["ぐー","ちょき","ぱー"])
-                await interaction.followup.send(embed = discord.Embed(title=f"ポン:grey_exclamation:僕の手は {bot_hand}:grey_exclamation:"))
+                await interaction.followup.send(embed = discord.Embed(title=f"ポン:grey_exclamation:僕の手は {bot_hand}:grey_exclamation:"), ephemeral=True)
                 player_hand_num, bot_hand_num = rps_dict[player_hand], rps_dict[bot_hand]
                 # check game end
                 if (player_hand_num+1)%3 == bot_hand_num:
@@ -157,7 +159,7 @@ class GambleCog(commands.Cog):
                 elif (bot_hand_num+1)%3 == player_hand_num:
                     winner = "bot"
             except asyncio.TimeoutError:
-                await interaction.followup.send("もっと早く手をだして:exclamation:最初から :person_shrugging:")
+                await interaction.followup.send("もっと早く手をだして:exclamation:最初から :person_shrugging:", ephemeral=True)
                 await update_bal_delta(bet_amount, user_name)
                 return
         if winner is not None:
@@ -268,7 +270,7 @@ class GambleCog(commands.Cog):
         self.midbet_users = set()
         self.midgame_rps_users = set()
         embed = discord.Embed(title="set_reset", description=f"In-Game sets reset complete :D", color=discord.Color.brand_green())
-        await interaction.response.send_message(embed=embed)
+        await interaction.response.send_message(embed=embed, ephemeral=True)
 
     @app_commands.command(name=ALL_COMMANDS.gamble.rl.name, description=ALL_COMMANDS.gamble.rl.description)
     @app_commands.describe(
@@ -288,12 +290,13 @@ class GambleCog(commands.Cog):
             game_name="一人ロシアンルーレット"
             )
         if isinstance(bet_amount_check_response, str):
-            await interaction.followup.send(bet_amount_check_response)
+            await interaction.followup.send(bet_amount_check_response, ephemeral=True)
         elif isinstance(bet_amount_check_response, discord.Embed):
-            await interaction.followup.send(embed=bet_amount_check_response)
+            await interaction.followup.send(embed=bet_amount_check_response, ephemeral=True)
         else:
             print(f"invalid return of {type(bet_amount_check_response)}")
             return
+        if bet_amount is None: return
         
         # rl embed
         embed = discord.Embed(
@@ -302,7 +305,7 @@ class GambleCog(commands.Cog):
             color=discord.Color.dark_purple()
         )
         view = discord.ui.View()
-        button = discord.ui.Button(label="スピン", style=discord.ButtonStyle.primary)
+        button = discord.ui.Button(label="スピン", style=discord.ButtonStyle.green)
 
         # games
         games = dict()
@@ -338,19 +341,18 @@ class GambleCog(commands.Cog):
             game_name="ロシアンルーレット"
             )
         if isinstance(bet_amount_check_response, str):
-            await interaction.response.send_message(bet_amount_check_response)
+            await interaction.response.send_message(bet_amount_check_response, ephemeral=True)
         elif isinstance(bet_amount_check_response, discord.Embed):
-            await interaction.response.send_message(embed=bet_amount_check_response)
+            await interaction.response.send_message(embed=bet_amount_check_response, ephemeral=True)
         else:
             print(f"invalid return of {type(bet_amount_check_response)}")
             return
-        
         if pocket is None: return
         
         # get players to join
         embed = discord.Embed(
             title=":yen:ロシアンルーレット:yen:",
-            description=f"{user.mention}がロシアンルーレットの部屋を立てました:bangbang:\n:gun:でリアクションして参加しよう！",
+            description=f"{user.mention}がロシアンルーレットの部屋を立てました:bangbang:\n:gun:でリアクションして参加しよう！\n生き延びた人が全額もらえるよ！",
             color=discord.Color.yellow()
         )
         embed.add_field(name="参加費用", value=f"{clean_money_display(pocket)}")
@@ -361,14 +363,57 @@ class GambleCog(commands.Cog):
         # add reaction for other players to click
         await webhook_msg.add_reaction("🔫")
         # wait for users to react
-        await asyncio.sleep(5)
+        await asyncio.sleep(10)
 
         def check(reaction, user):
             return str(reaction.emoji) == "🔫" and user != self.bot.user
         
-        # refetch msg
-        msg = await msg.original_message()
+        # get msg in cache
+        cache_msg = discord.utils.get(self.bot.cached_messages, id=msg.id)
+        reactions = cache_msg.reactions
 
+        # scan reactions on embed. check which user would like to participate
+        for r in reactions:
+            if str(r.emoji) == "🔫":
+                async for u in r.users():
+                    if u != self.bot.user and u not in self.rl_multi_participants:
+                        self.rl_multi_participants.append(u)
+        
+        # if there is only 1 user, silently add bot to user list
+        if len(self.rl_multi_participants) < 2:
+            self.rl_multi_participants.append(self.bot.user)
+
+        # participant count
+        num_players = len(self.rl_multi_participants)
+
+        data = await read_json("gamble")
+
+        # display users in-game
+        embed = discord.Embed(
+            title=f"🎉{user.name}様主催のロシアンルーレット:exclamation:\n参加者はこちら:exclamation:",
+            color=discord.Color.purple()
+        )
+        for u in self.rl_multi_participants:
+            embed.add_field(name=f"", value=f"{u.mention}\n財力は{clean_money_display(data[u.name])}")
+        await interaction.followup.send(embed = embed)
+
+        # subtract money
+        for u in self.rl_multi_participants:
+            if u != user:
+                await update_bal_delta(-pocket, u.name)
+
+        # gameplay
+        while len(self.rl_multi_participants) > 1:
+            p = random.choice(self.rl_multi_participants)
+            self.rl_multi_participants.remove(p)
+            await asyncio.sleep(3)
+            await interaction.followup.send(f":skull:{p.mention}:gun:は死にました...")
+        
+        # last man standing
+        winner = self.rl_multi_participants[0]
+        win_amount = pocket * num_players
+        await update_bal_delta(win_amount, winner.name)
+        await interaction.followup.send(f":tada:{winner.mention}:tada:の勝利:exclamation:\n賞金{clean_money_display(win_amount)}ゲット:bangbang:")
 
 async def setup(bot):
     await bot.add_cog(GambleCog(bot), guilds=[discord.Object(id=get_guild_id())])

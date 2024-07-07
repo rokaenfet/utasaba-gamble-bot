@@ -1,0 +1,55 @@
+# flyctl launch added from main\.gitignore
+main\**\*.env
+main\**\test.py
+
+# Byte-compiled / optimized / DLL files
+main\**\__pycache__
+main\**\*.py[cod]
+
+# C extensions
+main\**\*.so
+
+# Distribution / packaging
+main\**\bin
+main\**\build
+main\**\develop-eggs
+main\**\dist
+main\**\eggs
+main\**\lib
+main\**\lib64
+main\**\parts
+main\**\sdist
+main\**\var
+main\**\*.egg-info
+main\**\.installed.cfg
+main\**\*.egg
+
+# Installer logs
+main\**\pip-log.txt
+main\**\pip-delete-this-directory.txt
+
+# Unit test / coverage reports
+main\**\.tox
+main\**\.coverage
+main\**\.cache
+main\**\nosetests.xml
+main\**\coverage.xml
+
+# Translations
+main\**\*.mo
+
+# Mr Developer
+main\**\.mr.developer.cfg
+main\**\.project
+main\**\.pydevproject
+
+# Rope
+main\**\.ropeproject
+
+# Django stuff:
+main\**\*.log
+main\**\*.pot
+
+# Sphinx documentation
+main\**\docs\_build
+fly.toml

@@ -1,0 +1,8 @@
+aiofiles==24.1.0
+discord.py==2.3.2
+jaconv==0.3.4
+python-dotenv==1.0.1
+python_dateutil==2.8.2
+Requests==2.32.3
+schedule==1.2.2
+discord-pretty-help==2.0.7

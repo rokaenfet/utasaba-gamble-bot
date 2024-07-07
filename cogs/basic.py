@@ -31,7 +31,7 @@ class BasicCog(commands.Cog):
             embed.add_field(name="Guild Locale", value=f"{interaction.guild_locale}", inline=False)
             embed.add_field(name="Client", value=f"{interaction.client.user}", inline=False)
             embed.add_field(name="/info command description", value=f"{interaction.command.description}", inline=False)
-            await interaction.response.send_message(embed=embed)
+            await interaction.response.send_message(embed=embed, ephemeral=True)
         except Exception as e:
             print(f"Error: {e}")
 
@@ -40,7 +40,7 @@ class BasicCog(commands.Cog):
         member=ALL_COMMANDS.basic.avatar.member
     )
     async def avatar(self, interaction:discord.Interaction, member:discord.Member):
-        await interaction.response.send_message(member.display_avatar)
+        await interaction.response.send_message(member.display_avatar, ephemeral=True)
 
     @app_commands.command(name=ALL_COMMANDS.basic.daily.name, description=ALL_COMMANDS.basic.daily.description)
     async def daily(self, interaction:discord.Interaction):
@@ -94,7 +94,7 @@ class BasicCog(commands.Cog):
                 "streak":streak, 
                 "last_daily": encode_datetime_timestamp(cur_time)
                 }
-            await update_json("daily", daily_data)
+            update_json("daily", daily_data)
         else:
             next_daily = (user_last_daily_time+datetime.timedelta(days=1)) - cur_time
             hour, minute, second = next_daily.seconds//3600, (next_daily.seconds//60)%60, next_daily.seconds%60
@@ -151,40 +151,157 @@ class BasicCog(commands.Cog):
     )
     async def slap(self, interaction:discord.Interaction, user:discord.Member):
         # If user A slaps B. quantity of slaps is accessed via read_json("slap_interaction.json")[A][B]
+        # pre vars
+        interaction_name = "slap"
+        json_f = f"{interaction_name}_interaction"
+        data = await read_json(json_f)
         # user
         send_user = interaction.user
         send_user_name = send_user.name
         receive_user = user
         receive_user_name = receive_user.name
-        # data
-        json_f = "slap_interaction"
+
+        gif_url = await basic_interaction(
+            interaction=interaction,
+            user=user,
+            gifs=self.gif.gifs[interaction_name],
+            json_f=json_f
+        )
+
         data = await read_json(json_f)
-        # check send_user has ever interacted
-        if send_user_name not in data:
-            data[send_user_name] = {}
-        # check receive_user has been interacted by send_user
-        if receive_user_name not in data[send_user_name]:
-            data[send_user_name][receive_user_name] = 0
-
-        # select gif
-        slap_url = random.choice(self.gif.slap_gifs)['images']['original']['url']
-
-        # slap
-        data[send_user_name][receive_user_name] += 1
-        update_json(json_f, data)
         embed = discord.Embed(
             title=":raised_hand:ビ・ン・タ:raised_back_of_hand:",
             description=f"{send_user.mention}は{receive_user.mention}を**{data[send_user_name][receive_user_name]}回**ビンタしました:exclamation:",
             color=discord.Color.purple()
         )
-        embed.set_image(url=slap_url)
+        interaction_quantity = data[send_user_name][receive_user_name]
+        if interaction_quantity % 10 == 0:
+            embed.add_field(name=f"{interaction_quantity}回目:exclamation:",value=f"報酬に{clean_money_display(interaction_quantity*100)}")
+        
+        embed.set_image(url=gif_url)
+        
         await interaction.response.send_message(embed=embed)
+
+    @app_commands.command(name=ALL_COMMANDS.basic.punch.name, description=ALL_COMMANDS.basic.punch.description)
+    @app_commands.describe(
+        user=ALL_COMMANDS.basic.punch.user
+    )
+    async def punch(self, interaction:discord.Interaction, user:discord.Member):
+        # If user A punch B. quantity of punch is accessed via read_json("punch_interaction.json")[A][B]
+        # pre vars
+        interaction_name = "punch"
+        json_f = f"{interaction_name}_interaction"
+        data = await read_json(json_f)
+        # user
+        send_user = interaction.user
+        send_user_name = send_user.name
+        receive_user = user
+        receive_user_name = receive_user.name
+
+        gif_url = await basic_interaction(
+            interaction=interaction,
+            user=user,
+            gifs=self.gif.gifs[interaction_name],
+            json_f=json_f
+        )
+        data = await read_json(json_f)
+        embed = discord.Embed(
+            title=":left_facing_fist:パ・ン・チ:right_facing_fist:",
+            description=f"{send_user.mention}は{receive_user.mention}を**{data[send_user_name][receive_user_name]}回**パンチしました:exclamation:",
+            color=discord.Color.purple()
+        )
+        interaction_quantity = data[send_user_name][receive_user_name]
+        if interaction_quantity % 10 == 0:
+            embed.add_field(name=f"{interaction_quantity}回目:exclamation:",value=f"報酬に{clean_money_display(interaction_quantity*100)}")
+        
+        embed.set_image(url=gif_url)
+        
+        await interaction.response.send_message(embed=embed)
+
+
+    @app_commands.command(name=ALL_COMMANDS.basic.dance.name, description=ALL_COMMANDS.basic.dance.description)
+    @app_commands.describe(
+        user=ALL_COMMANDS.basic.dance.user
+    )
+    async def dance(self, interaction:discord.Interaction, user:discord.Member):
+        # If user A dance B. quantity of dance is accessed via read_json("dance_interaction.json")[A][B]
+        # pre vars
+        interaction_name = "dance"
+        json_f = f"{interaction_name}_interaction"
+        data = await read_json(json_f)
+        # user
+        send_user = interaction.user
+        send_user_name = send_user.name
+        receive_user = user
+        receive_user_name = receive_user.name
+
+        gif_url = await basic_interaction(
+            interaction=interaction,
+            user=user,
+            gifs=self.gif.gifs[interaction_name],
+            json_f=json_f
+        )
+        data = await read_json(json_f)
+        embed = discord.Embed(
+            title=":dancer:ダンシング:musical_note::man_dancing:",
+            description=f"{send_user.mention}は{receive_user.mention}と**{data[send_user_name][receive_user_name]}回**踊りました:exclamation:",
+            color=discord.Color.purple()
+        )
+        interaction_quantity = data[send_user_name][receive_user_name]
+        if interaction_quantity % 10 == 0:
+            embed.add_field(name=f"{interaction_quantity}回目:exclamation:",value=f"報酬に{clean_money_display(interaction_quantity*100)}")
+        
+        embed.set_image(url=gif_url)
+        
+        await interaction.response.send_message(embed=embed)
+        
+
+    @app_commands.command(name=ALL_COMMANDS.basic.hug.name, description=ALL_COMMANDS.basic.hug.description)
+    @app_commands.describe(
+        user=ALL_COMMANDS.basic.hug.user
+    )
+    async def hug(self, interaction:discord.Interaction, user:discord.Member):
+        # If user A hug B. quantity of hug is accessed via read_json("hug_interaction.json")[A][B]
+        # pre vars
+        interaction_name = "hug"
+        json_f = f"{interaction_name}_interaction"
+        data = await read_json(json_f)
+        # user
+        send_user = interaction.user
+        send_user_name = send_user.name
+        receive_user = user
+        receive_user_name = receive_user.name
+
+        gif_url = await basic_interaction(
+            interaction=interaction,
+            user=user,
+            gifs=self.gif.gifs[interaction_name],
+            json_f=json_f
+        )
+        data = await read_json(json_f)
+        embed = discord.Embed(
+            title=":people_hugging:はぐぅぅぅ:people_hugging:",
+            description=f"{send_user.mention}は{receive_user.mention}を**{data[send_user_name][receive_user_name]}回**ハグしました:exclamation:",
+            color=discord.Color.purple()
+        )
+        interaction_quantity = data[send_user_name][receive_user_name]
+        if interaction_quantity % 10 == 0:
+            embed.add_field(name=f"{interaction_quantity}回目:exclamation:",value=f"報酬に{clean_money_display(interaction_quantity*100)}")
+        
+        embed.set_image(url=gif_url)
+        
+        await interaction.response.send_message(embed=embed)
+
 
     @app_commands.command(name=ALL_COMMANDS.basic.reload_gif.name, description=ALL_COMMANDS.basic.reload_gif.description)
     async def reload_gif(self, interaction:discord.Interaction):
         t = time.time()
         self.gif.load_gifs()
         await interaction.response.send_message(f"Reloaded gifs in {round(time.time()-t,3)}s")
+
+    @app_commands.command(name=ALL_COMMANDS.basic.rankings.name, description=ALL_COMMANDS.basic.rankings.description)
+    async def rankings(self, interaction:discord.Interaction, name:str):
+        pass
 
 async def setup(bot):
     await bot.add_cog(BasicCog(bot), guilds=[discord.Object(id=get_guild_id())])

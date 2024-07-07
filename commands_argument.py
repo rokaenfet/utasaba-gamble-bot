@@ -34,8 +34,12 @@ class CommandParams():
                 "avatar":["Get user avatar", {"member":"@[ユーザー名]"}],
                 "daily":["１日一回のデイリー報酬をもらうコマンド", {}],
                 "send_money":["選んだ相手にお金を送ろう！", {"user":"お金を送りたいユーザー名", "amount":"送る金額か「all」で全額送る"}],
+                "reload_gif":["reload gifs from GIPHY",{}],
                 "slap":["ビンタァァァァァ！！！",{"user":"誰をぉぉぉ、ビンタァァァ、するんだぁぁいぃぃ？！"}],
-                "reload_gif":["reload gifs from GIPHY",{}]
+                "punch":["ぱーんち！",{"user":"誰をパンチしたいんだい？"}],
+                "hug":["窒息するほどのハグをしよう！",{"user":"誰に抱擁を授けるのでしょうか？"}],
+                "dance":["イッツパーティタァァァイム！！！",{"user":"朝まで一緒に踊るイカレたやつを選べぇ！"}],
+                "rankings":["ランキング表示！",{}]
             }
         )
         
@@ -46,7 +50,9 @@ class CommandParams():
                 "reload":["update cogs/*** extensions", {}],
                 "reset_daily":["reset the daily for a specific user", {"user":"member to reset daily for"}],
                 "get_channel_text":["get all text in a given text channel", {"channel":"channel to get all txt for", "history":"how many messages to go back"}],
-                "purge":["remove some amount of messages", {"channel":"channel to remove texts from","number":"quantity of messages to remove"}]
+                "purge":["remove some amount of messages", {"channel":"channel to remove texts from","number":"quantity of messages to remove"}],
+                "shiritori_del_words":["remove n recent words from shiritori list", {"n":"num of recent words to remove"}],
+                "shiritori_show_words":["show n recent words from shiritori list", {"n":"num of recent words to remove"}]
             }
         )
 

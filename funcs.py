@@ -9,10 +9,14 @@ import typing
 import re
 import time
 import jaconv
+import langdetect
+import random
 from discord.ext import commands
 from dotenv import load_dotenv
-from pretty_help import PrettyHelp
 from dotenv import load_dotenv
+
+
+langdetect.DetectorFactory.seed = 0
 
 # FUNC
 
@@ -106,6 +110,36 @@ def rps_alt_embed():
     embed.add_field(name=":v:　ちょき", value="", inline=False)
     return embed
 
+def char_is_hiragana(c) -> bool:
+    return u'\u3040' <= c <= u'\u309F' or c == "ー"
+
+def string_is_hiragana(s: str) -> bool:
+    return all(char_is_hiragana(c) for c in s)
+
+def check_str_validity_for_shiritori(msg: str):
+    """
+    get str content
+    convert jp / en brackets to en brackets
+    extract string between brackets
+    strip special chars such as ! or ?
+    turn all katakana to hiragana
+    detect string between bracket is japanese
+    detect string between bracket is hiragana
+    """
+    try:
+        msg = translate_jp_bracket_to_eng_bracket(msg)
+        if not("(" in msg and ")" in msg and msg.index("(")<msg.index(")")):
+            return None
+        msg = find_string_between_bracket(msg)
+        msg = strip_special_chars(msg)
+        msg = jaconv.kata2hira(msg)
+        # print(f"{msg} is {langdetect.detect_langs(msg)}")
+        if langdetect.detect(msg) == "ja":
+            if string_is_hiragana(msg):
+                if msg[-1] != "ん":
+                    return msg
+    except Exception as e:
+        print(f"Error in check_str_validity_for_shiritori(msg:str) -> bool\n{e}")
 
 
 # ASYNCH
@@ -158,25 +192,21 @@ async def shiritori_on_ready(bot:commands.Bot, TEXT_CHANNEL_ID:int):
     text_channel = bot.get_channel(TEXT_CHANNEL_ID)
     # order from oldest = [0], newest = [-1]
     t = time.time()
-    messages = [message async for message in text_channel.history(limit=100) if message.author.name != bot.user.name]
+    messages = [message async for message in text_channel.history(limit=500) if message.author.name != bot.user.name]
     # filter only messages with ()
     messages_w_bracket = [n for n in messages if "(" in n.content and ")" in n.content]
     if len(messages_w_bracket) == 0:
         await text_channel.send(f"(しりとり)")
-        update_json("shiritori", {"last_message":"しりとり", "user":bot.user.name, "history":["しりとり"]})
+        update_json("shiritori", {"last_message":"しりとり", "user":bot.user.name, "history":["(しりとり)"]})
     else:
-        # check for last message which doesn't end in ん and is all japanese
-        messages_in_bracket = [[find_string_between_bracket(translate_jp_bracket_to_eng_bracket(n.content)),n] for n in messages_w_bracket]
-        for msg_str,msg in messages_in_bracket:
-            # strip special chars
-            msg_str = strip_special_chars(msg_str)
-            # katakana2hiragana
-            msg_str = jaconv.kata2hira(msg_str)
-            # check its in japanese
-            jp_chars = await find_japanese_from_str(msg_str)
-            if len(jp_chars) > 0 and len(jp_chars) == len(msg_str) and msg_str[-1] != "ん":
-                break
-        update_json("shiritori", {"last_message":msg_str, "user":msg.author.name, "history": [n.content for n in messages]})
+        # check / change messages
+        new_msgs = []
+        for msg in messages_w_bracket:
+            msg = msg.content
+            new_msg = check_str_validity_for_shiritori(msg)
+            if new_msg:
+                new_msgs.append(new_msg)
+        update_json("shiritori", {"last_message":"", "user":"", "history": new_msgs[::-1]})
     print(f"loaded all msg in #{text_channel}. Load time: {round(time.time()-t,3)}s")
 
 # ON_MESSAGE_SEND
@@ -197,23 +227,18 @@ async def shiritori_on_message(msg:discord.Message):
         "ゅ":"ゆ",
         "っ":"つ"
     }
+                
     # current message
     cur_msg_content = msg.content
-    # change jp bracket to eng bracket
-    cur_msg_content = translate_jp_bracket_to_eng_bracket(cur_msg_content)
-    # check message has ( ) wrap
-    if not( "(" in cur_msg_content and ")" in cur_msg_content and cur_msg_content.find("(") < cur_msg_content.find(")") ):
+    cur_msg_content = check_str_validity_for_shiritori(cur_msg_content)
+    if cur_msg_content is None:
         await msg.add_reaction(str("❌"))
-        await msg.channel.send(f"しりとりの言葉は**ひらがな**か**カタカナ**を`()`に入れてね:exclamation:\n例入力: `歌う(うたう)`")
+        await msg.channel.send(f"しりとりの言葉は**ひらがな**か**カタカナ**_だけ_を`()`に入れてね:exclamation:\n例入力: `歌う(うたう)`")
         return
-    # extract hiragana word from cur_msg_content
-    cur_msg_content = find_string_between_bracket(cur_msg_content)
-    # convert to hiragana
-    cur_msg_content = jaconv.kata2hira(cur_msg_content)
 
     shiritori_data = await read_json("shiritori")
     # last message
-    last_word = shiritori_data["last_message"]
+    last_word = shiritori_data["history"][-1]
     # check 伸ばし棒
     last_char = last_word[-2] if last_word[-1] == "ー" else last_word[-1]
     # katakana > hiragana
@@ -221,29 +246,27 @@ async def shiritori_on_message(msg:discord.Message):
     # check small case ending
     last_char = trans_dict[last_char] if last_char in trans_dict else last_char
 
-    # strip special characters from msg
-    stripped_cur_msg_content = strip_special_chars(cur_msg_content)
     # check non duplicate
-    if stripped_cur_msg_content in shiritori_data["history"]:
+    if cur_msg_content in shiritori_data["history"]:
         await msg.add_reaction(str("❌"))
         await msg.channel.send(f"その言葉はもう使われたよ:exclamation:")
         return
     # check ending valid
-    if stripped_cur_msg_content[-1] == "ん":
+    if cur_msg_content[-1] == "ん":
         await msg.add_reaction(str("❌"))
         await msg.channel.send(f"`ん`だと終わってしまう、、、:exclamation:")
         return
-    if  stripped_cur_msg_content[0] == last_char:
+    if  cur_msg_content[0] == last_char:
         update_json("shiritori",{
-            "last_message":stripped_cur_msg_content,
+            "last_message":cur_msg_content,
             "user":msg.author.name, 
-            "history":shiritori_data["history"]+[stripped_cur_msg_content]
+            "history":shiritori_data["history"]+[cur_msg_content]
             })
         await update_bal_delta(100, msg.author.name)
         await msg.add_reaction(str("✅"))
     else:
         await msg.add_reaction(str("❌"))
-        await msg.channel.send(f"現在の言葉は`{shiritori_data['last_message']}`です:exclamation:")
+        await msg.channel.send(f"現在の言葉は`{shiritori_data['history'][-1]}`です:exclamation:")
 
 async def on_message_image_upload_daily(msg:discord.Message):
     # json file name
@@ -296,7 +319,7 @@ async def on_message_image_upload_daily(msg:discord.Message):
                 "streak":streak, 
                 "last_daily": encode_datetime_timestamp(cur_time)
                 }
-            await update_json(json_f, data)
+            update_json(json_f, data)
         else:
             # add less money
             await update_bal_delta(amount = 100, user = user_name)
@@ -348,8 +371,15 @@ async def check_bet_amount(bet_amount:str, user:discord.Member, game_name:str):
             try:
                 # bet_amount : str > int (check can it be turned to int)
                 bet_amount = int(bet_amount)
+                # dont allow negative bets
+                if bet_amount <= 0:
+                    response = discord.Embed(
+                        title=f"０:coin:以上の金額をベットしてください",
+                        color=discord.Color.light_embed()
+                    )
+                    bet_amount = None
                 # if user have enough balance
-                if bet_amount < gamble_data[user_name]:
+                elif bet_amount < gamble_data[user_name]:
                     response = discord.Embed(
                         title=f":money_with_wings:{game_name} | ギャンブル:money_with_wings:",
                         description=f"{user.mention}は{game_name}に{clean_money_display(bet_amount)}賭けました",
@@ -378,3 +408,27 @@ async def check_bet_amount(bet_amount:str, user:discord.Member, game_name:str):
                 bet_amount = None
     # return response to /command invoking this function
     return response, bet_amount
+
+async def basic_interaction(interaction: discord.Interaction, user: discord.Member, gifs, json_f:str):
+    # user
+    send_user = interaction.user
+    send_user_name = send_user.name
+    receive_user = user
+    receive_user_name = receive_user.name
+    # data
+    data = await read_json(json_f)
+    # check send_user has ever interacted
+    if send_user_name not in data:
+        data[send_user_name] = {}
+    # check receive_user has been interacted by send_user
+    if receive_user_name not in data[send_user_name]:
+        data[send_user_name][receive_user_name] = 0
+
+    # select gif
+    gif_url = random.choice(gifs)['images']['original']['url']
+
+    # slap
+    data[send_user_name][receive_user_name] += 1
+    update_json(json_f, data)
+    
+    return gif_url
