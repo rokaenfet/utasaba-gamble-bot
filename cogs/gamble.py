@@ -171,6 +171,10 @@ class GambleCog(commands.Cog):
                 )
             await interaction.followup.send(embed = response)
     
+    @app_commands.command(name=ALL_COMMANDS.gamble.blackjack.name, description=ALL_COMMANDS.gamble.blackjack.description)
+    @app_commands.describe(
+        bet_amount=ALL_COMMANDS.gamble.blackjack.bet_amount
+    )
     async def blackjack(self, interaction:discord.Interaction, bet_amount:str, opponent:discord.Member = None): 
 
         user = interaction.user
@@ -223,17 +227,23 @@ class GambleCog(commands.Cog):
         dealer_hand = []
         player_value = 0
         dealer_value = 0
+        deck = genDeck()
         for _ in range(2): 
             player_hand.append(deck.pop())
             dealer_hand.append(deck.pop())
         player_value = sumHand(player_hand)
         dealer_value = sumHand(player_hand)
+        await interaction.response.send_message(embed = discord.Embed(title= player_hand + dealer_hand))
+        msg = await interaction.original_response()
+        reaction = "👊"
+        await msg.add_reaction(reaction)
         if player_hand == 21 and dealer_hand != 21: 
             winner = True
         while winner is None: 
             #TODO add rest of game, hitting and staying
             try:
-                await interaction.followup.send(embed = discord.Embed(title= player_hand))
+                # await interaction.followup.send(embed = discord.Embed(title= player_hand + dealer_hand))
+                
                 # res = await self.bot.wait_for("message", check=check, timeout=10.0)
                 # check game end
                 
@@ -253,7 +263,7 @@ class GambleCog(commands.Cog):
             await interaction.followup.send(embed = response)
             
     @app_commands.command(name=ALL_COMMANDS.gamble.reload_player_sets.name, description=ALL_COMMANDS.gamble.reload_player_sets.description)
-    @commands.has_role("Admin")
+    @commands.is_owner()
     async def reload_player_sets(self, interaction:discord.Interaction):
         self.midbet_users = set()
         self.midgame_rps_users = set()

@@ -1,12 +1,15 @@
 {
       "averageaxolotl": {
-            "capitulation": 4,
-            "stinky-fish-bot": 7,
+            "capitulation": 5,
+            "stinky-fish-bot": 8,
             "katchi_2201": 2,
             "chunky_johnny": 1,
             "averageaxolotl": 2
       },
       "katchi_2201": {
+            "averageaxolotl": 1
+      },
+      "capitulation": {
             "averageaxolotl": 1
       }
 }

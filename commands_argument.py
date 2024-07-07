@@ -58,7 +58,8 @@ class CommandParams():
                 "rps":["ギャンブルジャンケン", {"bet_amount":"「all」でオールイン、または数字入力でその額をベット e.g. 「100」"}],
                 "reload_player_sets":["remove players from in-game list", {}],
                 "rl":["時短でボット相手にロシアンルーレット~",{"bet_amount":"「all」でオールイン、または数字入力でその額をベット e.g. 「100」"}],
-                "rl_multi":["皆でロシアンルーレット！",{"pocket":"参加費用の金額"}]
+                "rl_multi":["皆でロシアンルーレット！",{"pocket":"参加費用の金額"}],
+                "blackjack":["Get to 21", {"bet_amount": '"all" is all-in, please enter an integer figure like 100'}]
             }
         )
 
